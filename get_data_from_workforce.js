@@ -15,8 +15,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fin
-const fechaInicio = '2024-08-06';
-const fechaFin = '2024-08-16';
+const fechaInicio = '2024-09-02';
+const fechaFin = '2024-09-08';
 
 // Configuración de la conexión a SQL Server
 const sqlConfig = {
@@ -850,13 +850,15 @@ const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'datos_tanda_COMPLETOS.js
 async function main() {
   try {
     // Crear el directorio 'data' si no existe
-    await mkdir(path.dirname(rutaJson), { recursive: true });
+    await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
 
     console.log(`Obteniendo datos desde ${fechaInicio} hasta ${fechaFin}...`);
 
     const datosTOTALIZADOS = await obtenerDatosTandaApi(fechaInicio, fechaFin);
     const jsonDatosTOTALIZADOS = JSON.stringify(datos, null, 2);
     await writeFile(rutaJsonTOTALIZADO, jsonDatosTOTALIZADOS);
+
+    await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
 
     const datosCOMPLETOS = await obtenerDatosCOMPLETOSTandaApi(fechaInicio, fechaFin);
     const jsonDatosCOMPLETOS = JSON.stringify(datos, null, 2);
