@@ -150,7 +150,7 @@ async function obtenerDatosTandaApi(fechaInicio, fechaFin) {
   const departamentosNonCoverageUnicos = eliminarDuplicadosPorId(departamentosNonCoverage);
   const departamentosTrainingUnicos = eliminarDuplicadosPorId(departamentosTraining);
 
-  const departamentosRelevantesCompletosUnicos = eliminarDuplicadosPorId(departamentosRelevantes);
+  const departamentosRelevantesCompletosUnicos = eliminarDuplicadosPorId(departamentosRelevantesCOMPLETOS);
 
   if ((!departamentosCoverageUnicos || departamentosCoverageUnicos.length === 0) &&
       (!departamentosNonCoverageUnicos || departamentosNonCoverageUnicos.length === 0) &&
@@ -187,24 +187,56 @@ async function obtenerDatosTandaApi(fechaInicio, fechaFin) {
     const lunes = obtenerLunes(rango.inicio);
 
 // Obtener Horas Recomendadas COMPLETAS (minimumIdealCoverage)
-    for (const department of departamentosRelevantesCompletosUnicos) {
+for (const department of departamentosRelevantesCompletosUnicos) {
+  const recommendedHours = await obtenerDatos('/recommended_hours', {
+    from_date: rango.inicio,
+    to_date: rango.fin,
+    department_id: department.id
+  });
+
+  if (recommendedHours && Array.isArray(recommendedHours)) {
+    const location = ubicaciones.find(loc => loc.id === department.location_id);
+    if (location) {
+      const recommendedHoursFlattened = recommendedHours.map((item) => ({
+        ...item,
+        department_name: department.name,
+        department_id: department.id,
+        location_name: location.name,
+        location_id: location.id
+      }));
+      datos2.minimumIdealCoverage.push(...recommendedHoursFlattened);
+    } else {
+      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+    }
+  } else {
+    console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
+  }
+}
+  
+
+// Obtener Horas Recomendadas TOTALIZADAS (minimumIdealCoverage)
+    const totalRecommendedHours = {};
+
+    for (const department of departamentosCoverageUnicos) {
       const recommendedHours = await obtenerDatos('/recommended_hours', {
         from_date: rango.inicio,
         to_date: rango.fin,
         department_id: department.id
       });
-    
+
       if (recommendedHours) {
         const location = ubicaciones.find(loc => loc.id === department.location_id);
         if (location) {
-          const recommendedHoursFlattened = recommendedHours.map((item) => ({
-            ...item,
-            department_name: department.name,
-            department_id: department.id,
-            location_name: location.name,
-            location_id: location.id
-          }));
-          datos2.minimumIdealCoverage.push(...recommendedHoursFlattened);
+          if (!totalRecommendedHours[location.id]) {
+            totalRecommendedHours[location.id] = {
+              week: lunes,
+              location_name: location.name,
+              location_id: location.id,
+              Total: 0
+            };
+          }
+          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
+
         } else {
           console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
         }
@@ -212,94 +244,63 @@ async function obtenerDatosTandaApi(fechaInicio, fechaFin) {
         console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
       }
     }
-  
-// Obtener Horas Recomendadas TOTALIZADAS (minimumIdealCoverage)
-const totalRecommendedHours = {};
 
-for (const department of departamentosCoverageUnicos) {
-  const recommendedHours = await obtenerDatos('/recommended_hours', {
-    from_date: rango.inicio,
-    to_date: rango.fin,
-    department_id: department.id
-  });
+    for (const department of departamentosNonCoverageUnicos) {
+      const recommendedHours = await obtenerDatos('/recommended_hours', {
+        from_date: rango.inicio,
+        to_date: rango.fin,
+        department_id: department.id
+      });
 
-  if (recommendedHours) {
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      if (!totalRecommendedHours[location.id]) {
-        totalRecommendedHours[location.id] = {
-          week: lunes,
-          location_name: location.name,
-          location_id: location.id,
-          Total: 0
-        };
+      if (recommendedHours) {
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
+          if (!totalRecommendedHours[location.id]) {
+            totalRecommendedHours[location.id] = {
+              week: lunes,
+              location_name: location.name,
+              location_id: location.id,
+              Total: 0
+            };
+          }
+          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
+        } else {
+          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+        }
+      } else {
+        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
       }
-      totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
     }
-  } else {
-    console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
-  }
-}
 
-for (const department of departamentosNonCoverageUnicos) {
-  const recommendedHours = await obtenerDatos('/recommended_hours', {
-    from_date: rango.inicio,
-    to_date: rango.fin,
-    department_id: department.id
-  });
+    for (const department of departamentosTrainingUnicos) {
+      const recommendedHours = await obtenerDatos('/recommended_hours', {
+        from_date: rango.inicio,
+        to_date: rango.fin,
+        department_id: department.id
+      });
 
-  if (recommendedHours) {
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      if (!totalRecommendedHours[location.id]) {
-        totalRecommendedHours[location.id] = {
-          week: lunes,
-          location_name: location.name,
-          location_id: location.id,
-          Total: 0
-        };
+      if (recommendedHours) {
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
+          if (!totalRecommendedHours[location.id]) {
+            totalRecommendedHours[location.id] = {
+              week: lunes,
+              location_name: location.name,
+              location_id: location.id,
+              Total: 0
+            };
+          }
+          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
+        } else {
+          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+        }
+      } else {
+        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
       }
-      totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
     }
-  } else {
-    console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
-  }
-}
 
-for (const department of departamentosTrainingUnicos) {
-  const recommendedHours = await obtenerDatos('/recommended_hours', {
-    from_date: rango.inicio,
-    to_date: rango.fin,
-    department_id: department.id
-  });
-
-  if (recommendedHours) {
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      if (!totalRecommendedHours[location.id]) {
-        totalRecommendedHours[location.id] = {
-          week: lunes,
-          location_name: location.name,
-          location_id: location.id,
-          Total: 0
-        };
-      }
-      totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
-  }
-}
-
-// Convertir el objeto totalRecommendedHours a un array y agregarlo a datos.minimumIdealCoverage
-datos.minimumIdealCoverage.Coverage = Object.values(totalRecommendedHours);
+    // Convertir el objeto totalRecommendedHours a un array y agregarlo a datos.minimumIdealCoverage
+    datos.minimumIdealCoverage.Coverage = Object.values(totalRecommendedHours);
 
 
 // Obtener Cobertura Programada COMPLETA (scheduledCoverage)
@@ -524,7 +525,7 @@ if (datastreams) {
           to: rango.fin,
           type: 'checks'
         });
-
+      }}}
         //COMPLETO
         if (Array.isArray(actualTransactions)) {
           const actualTransactionsFlattened = actualTransactions.map((item) => ({
@@ -617,7 +618,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
           });
 
           datos2.totalPunchesLaborHours.push(...shiftsFlattened);
-
+        }}}
 //TOTALIZADO
 if (Array.isArray(totalWeeklyWorkedHours)) {
   for (const hours of totalWeeklyWorkedHours) {
@@ -667,6 +668,8 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
   
 }
   return datos, datos2;
+}
+}
 }
 
 // async function createTables(pool) {
@@ -742,11 +745,12 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
 //   await request.query(query);
 // }
 
-const rutaActual = path.dirname(__filename);
-const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'datos_tanda.json');
-const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'datos_tanda_COMPLETOS.json');
-
+// Definición de la función main
 async function main() {
+  const rutaActual = path.dirname(__filename);
+  const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'datos_tanda.json');
+  const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'datos_tanda_COMPLETOS.json');
+
   try {
     // Crear el directorio 'data' si no existe
     await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
@@ -763,17 +767,8 @@ async function main() {
     await writeFile(rutaJsonCOMPLETO, jsonDatosCOMPLETOS);
 
     console.log(`Datos guardados exitosamente en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
-  } catch (error) {
-    console.error('Error al obtener o guardar los datos:', error);
-  }
 
-    // // Conectar a SQL Server
-    // const pool = await sql.connect(sqlConfig);
-
-    // // Crear tablas si no existen
-    // await createTables(pool);
-
-    // // Insertar datos en las tablas
+    // Código comentado para insertar datos en SQL Server
     // for (const item of datos.minimumIdealCoverage) {
     //   await insertData(pool, 'MinimumIdealCoverage', item.week, item.datos, { name: 'department', value: item.department });
     // }
@@ -793,19 +788,11 @@ async function main() {
     //   await insertData(pool, 'TotalPunchesLaborHours', item.week, item.datos, { name: 'totalHoras', value: item.totalHoras });
     // }
 
-  //   console.log('Datos subidos exitosamente a SQL Server');
-  // } catch (error) {
-  //   console.error('Error en la ejecución principal:', error);
-  // } finally {
-  //   sql.close();
-}
-}
-}
-}
-}
-}
-}
-}
+    // console.log('Datos subidos exitosamente a SQL Server');
+  } catch (error) {
+    console.error('Error al obtener o guardar los datos:', error);
+  }
 }
 
+// Llamada a la función main
 main();
