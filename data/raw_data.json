@@ -1,0 +1,1689 @@
+{
+  "minimumIdeal": [
+    {
+      "date": "2024-11-04",
+      "total": 51,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-05",
+      "total": 36.25,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-06",
+      "total": 49.5,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-07",
+      "total": 55,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-08",
+      "total": 57.75,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-09",
+      "total": 57.5,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-10",
+      "total": 44.5,
+      "department_name": "Baristas",
+      "department_id": 906574,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 909335,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 909336,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-04",
+      "total": 20,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-05",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-06",
+      "total": 16.75,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-07",
+      "total": 18.75,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-08",
+      "total": 20.75,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-09",
+      "total": 21,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-10",
+      "total": 15.5,
+      "department_name": "Supervisores",
+      "department_id": 911402,
+      "location_name": "Macy's Ponce",
+      "location_id": 234997
+    },
+    {
+      "date": "2024-11-04",
+      "total": 26.75,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-05",
+      "total": 26,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-06",
+      "total": 28.25,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-07",
+      "total": 26.75,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-08",
+      "total": 29.75,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-09",
+      "total": 30.25,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-10",
+      "total": 25.5,
+      "department_name": "Supervisores",
+      "department_id": 914002,
+      "location_name": "Santa Isabel",
+      "location_id": 236536
+    },
+    {
+      "date": "2024-11-04",
+      "total": 17.5,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-05",
+      "total": 20.25,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-06",
+      "total": 26.5,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-07",
+      "total": 43.25,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-08",
+      "total": 33.75,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-09",
+      "total": 31,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-10",
+      "total": 26.25,
+      "department_name": "Supervisores",
+      "department_id": 934679,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-04",
+      "total": 21.5,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-05",
+      "total": 28,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-06",
+      "total": 22.5,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-07",
+      "total": 22.75,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-08",
+      "total": 28.5,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-09",
+      "total": 27.5,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-10",
+      "total": 27.5,
+      "department_name": "Supervisores",
+      "department_id": 934681,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-04",
+      "total": 24.5,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-05",
+      "total": 15,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-06",
+      "total": 27.5,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-07",
+      "total": 32.5,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-08",
+      "total": 33.75,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-09",
+      "total": 35,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-10",
+      "total": 26.25,
+      "department_name": "Baristas",
+      "department_id": 942256,
+      "location_name": "Plaza Del Caribe-kiosk",
+      "location_id": 241517
+    },
+    {
+      "date": "2024-11-04",
+      "total": 31.25,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-05",
+      "total": 35.75,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-06",
+      "total": 51,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-07",
+      "total": 80.75,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-08",
+      "total": 65.25,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-09",
+      "total": 62.25,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-10",
+      "total": 48.25,
+      "department_name": "Baristas",
+      "department_id": 942603,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942604,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942605,
+      "location_name": "Caribe Hilton",
+      "location_id": 240626
+    },
+    {
+      "date": "2024-11-04",
+      "total": 62.75,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-05",
+      "total": 69.5,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-06",
+      "total": 64.75,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-07",
+      "total": 64.5,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-08",
+      "total": 72.5,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-09",
+      "total": 74.25,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-10",
+      "total": 70,
+      "department_name": "Baristas",
+      "department_id": 942607,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 942608,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 942609,
+      "location_name": "Los Colobos",
+      "location_id": 240625
+    },
+    {
+      "date": "2024-11-04",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-05",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-06",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-07",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-08",
+      "total": 15.75,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-09",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-10",
+      "total": 16,
+      "department_name": "Supervisores",
+      "department_id": 948592,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948593,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948594,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-04",
+      "total": 27.75,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-05",
+      "total": 27.25,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-06",
+      "total": 26.25,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-07",
+      "total": 28,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-08",
+      "total": 29.75,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-09",
+      "total": 31,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-10",
+      "total": 30.75,
+      "department_name": "Baristas",
+      "department_id": 948595,
+      "location_name": "Hotel San Juan",
+      "location_id": 243153
+    },
+    {
+      "date": "2024-11-04",
+      "total": 15.25,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-05",
+      "total": 13,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-06",
+      "total": 13.25,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-07",
+      "total": 14.25,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-08",
+      "total": 19.75,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-09",
+      "total": 20.75,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-10",
+      "total": 13.5,
+      "department_name": "Baristas",
+      "department_id": 948596,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 948597,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 948598,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-04",
+      "total": 63.5,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-05",
+      "total": 56,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-06",
+      "total": 54.25,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-07",
+      "total": 54,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-08",
+      "total": 63.5,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-09",
+      "total": 57.75,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-10",
+      "total": 64.5,
+      "department_name": "Baristas",
+      "department_id": 953591,
+      "location_name": "Airport",
+      "location_id": 244396
+    },
+    {
+      "date": "2024-11-04",
+      "total": 13,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-05",
+      "total": 13,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-06",
+      "total": 13,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-07",
+      "total": 12.75,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-08",
+      "total": 14,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-09",
+      "total": 14,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-10",
+      "total": 9,
+      "department_name": "Supervisores",
+      "department_id": 953592,
+      "location_name": "Starbucks Express",
+      "location_id": 243154
+    },
+    {
+      "date": "2024-11-04",
+      "total": 45.75,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-05",
+      "total": 46.25,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-06",
+      "total": 43,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-07",
+      "total": 47.5,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-08",
+      "total": 47.75,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-09",
+      "total": 42.25,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-10",
+      "total": 36,
+      "department_name": "Baristas",
+      "department_id": 1003959,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1003961,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1003962,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-04",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-05",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-06",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-07",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-08",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-09",
+      "total": 16.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-10",
+      "total": 14.5,
+      "department_name": "Supervisores",
+      "department_id": 1003963,
+      "location_name": "Cala Costas",
+      "location_id": 258657
+    },
+    {
+      "date": "2024-11-04",
+      "total": 32,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-05",
+      "total": 31.75,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-06",
+      "total": 27.5,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-07",
+      "total": 32.5,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-08",
+      "total": 33.5,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-09",
+      "total": 35.25,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-10",
+      "total": 33,
+      "department_name": "Baristas",
+      "department_id": 1004764,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Non Coverage",
+      "department_id": 1004765,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-04",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-05",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-06",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-07",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-08",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-09",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    },
+    {
+      "date": "2024-11-10",
+      "total": 0,
+      "department_name": "Training",
+      "department_id": 1004766,
+      "location_name": "Condado Village",
+      "location_id": 258845
+    }
+  ],
+  "scheduled": [],
+  "transactionForecast": [],
+  "actualTransactions": [],
+  "Items": [],
+  "totalPunchesLaborHours": []
+}

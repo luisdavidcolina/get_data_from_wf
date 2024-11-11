@@ -15,8 +15,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fin
-const fechaInicio = '2024-09-02';
-const fechaFin = '2024-09-08';
+const fechaInicio = '2024-11-04';
+const fechaFin = '2024-11-10';
 
 // Configuración de la conexión a SQL Server
 const sqlConfig = {
@@ -40,7 +40,7 @@ async function obtenerDatos(endpoint, params = {}) {
   }
 }
 
-function generarRangosSemanales(inicio, fin) {
+function generateWeeklyRanges(inicio, fin) {
   const rangos = [];
   let fechaActual = new Date(inicio);
   const fechaFinal = new Date(fin);
@@ -48,7 +48,7 @@ function generarRangosSemanales(inicio, fin) {
   while (fechaActual <= fechaFinal) {
     const inicioSemana = new Date(fechaActual);
     const finSemana = new Date(fechaActual.setDate(fechaActual.getDate() + 6));
-    
+
     if (finSemana > fechaFinal) {
       rangos.push({
         inicio: inicioSemana.toISOString().split('T')[0],
@@ -75,16 +75,15 @@ function obtenerLunes(fecha) {
   return lunes.toISOString().split('T')[0];
 }
 
-async function obtenerDatosTandaApi(fechaInicio, fechaFin) {
+async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
-  //DATOS TOTALIZADOS
-  const datos = {
-    minimumIdealCoverage: {
+  const kpisByWeek = {
+    minimumIdeal: {
       Coverage: [],
       NonCoverage: [],
       Training: []
     },
-    scheduledCoverage: {
+    scheduled: {
       Coverage: [],
       NonCoverage: [],
       Training: []
@@ -95,704 +94,440 @@ async function obtenerDatosTandaApi(fechaInicio, fechaFin) {
     totalPunchesLaborHours: []
   };
 
-  //DATOS COMPLETOS NO TOTALIZADOS 
-  const datos2 = {
-    minimumIdealCoverage: [],
-    scheduledCoverage: [],
+  const rawData = {
+    minimumIdeal: [],
+    scheduled: [],
     transactionForecast: [],
     actualTransactions: [],
     Items: [],
     totalPunchesLaborHours: []
   };
 
-  const rangosSemanales = generarRangosSemanales(fechaInicio, fechaFin);
+  const rangosSemanales = generateWeeklyRanges(fechaInicio, fechaFin);
 
-  // Obtener lista de departamentos
   let departamentos = await obtenerDatos('/departments');
-  
-  // Filtrar por los departamentos relevantes (para totalizados)
-  const departamentosCoverage = departamentos.filter(departamento => 
-    departamento.name === 'Baristas DT' ||
-    departamento.name === 'Baristas' ||
-    departamento.name === 'Supervisores' ||
-    departamento.name === 'Supervisores DT'
-  );
-  const departamentosNonCoverage = departamentos.filter(departamento => 
-    departamento.name === 'Non Coverage'
-  );
-  const departamentosTraining = departamentos.filter(departamento => 
-    departamento.name === 'Training'
-  );
 
-  //Filtrar por los departamentos relevantes (para no totalizados)
-  const departamentosRelevantesCOMPLETOS = departamentos.filter(departamento => 
+
+  const departamentosRelevantesCompletosUnicos = departamentos.filter(departamento =>
     departamento.name === 'Baristas DT' ||
     departamento.name === 'Baristas' ||
     departamento.name === 'Supervisores' ||
     departamento.name === 'Supervisores DT' ||
-    departamento.name === 'Non Coverage' || 
+    departamento.name === 'Non Coverage' ||
     departamento.name === 'Training'
   );
 
-  // Eliminar duplicados
-  function eliminarDuplicadosPorId(array) {
-    const idsUnicos = new Set();
-    return array.filter((objeto) => {
-      if (idsUnicos.has(objeto.id)) {
-        return false;
-      } else {
-        idsUnicos.add(objeto.id);
-        return true;
-      }
-    });
-  }
-  const departamentosCoverageUnicos = eliminarDuplicadosPorId(departamentosCoverage);
-  const departamentosNonCoverageUnicos = eliminarDuplicadosPorId(departamentosNonCoverage);
-  const departamentosTrainingUnicos = eliminarDuplicadosPorId(departamentosTraining);
-
-  const departamentosRelevantesCompletosUnicos = eliminarDuplicadosPorId(departamentosRelevantesCOMPLETOS);
-
-  if ((!departamentosCoverageUnicos || departamentosCoverageUnicos.length === 0) &&
-      (!departamentosNonCoverageUnicos || departamentosNonCoverageUnicos.length === 0) &&
-      (!departamentosTrainingUnicos || departamentosTrainingUnicos.length === 0) &&
-      (!departamentosRelevantesCompletosUnicos || departamentosRelevantesCompletosUnicos.length === 0)) {
-    console.error('No se pudieron obtener los departamentos o la lista está vacía.');
-    return datos;
-  }
-
-  // Obtener lista de ubicaciones
   const ubicaciones = await obtenerDatos('/locations');
-  if (!ubicaciones || ubicaciones.length === 0) {
-    console.error('No se pudieron obtener las ubicaciones o la lista está vacía.');
-    return datos;
-  }
-
-
-  // Obtener lista de datastreams
   const datastreams = await obtenerDatos('/datastreams');
-  if (!datastreams || datastreams.length === 0) {
-    console.error('No se pudieron obtener los datastreams o la lista está vacía.');
-    return datos;
-  }
-
-  //Obtener lista de datastreams joins
   const datastreamsJoins = await obtenerDatos('/datastreamjoins');
-  if (!datastreamsJoins || datastreamsJoins.length === 0) {
-    console.error('No se pudieron obtener los datastreams joins o la lista está vacía.');
-    return datos;
-  }
 
+
+  let totalRecommendedHoursCoverage = {};
+  let totalRecommendedHoursNonCoverage = {};
+  let totalRecommendedHoursTraning = {}
 
   for (const rango of rangosSemanales) {
+
     const lunes = obtenerLunes(rango.inicio);
 
-// Obtener Horas Recomendadas COMPLETAS (minimumIdealCoverage)
-for (const department of departamentosRelevantesCompletosUnicos) {
-  const recommendedHours = await obtenerDatos('/recommended_hours', {
-    from_date: rango.inicio,
-    to_date: rango.fin,
-    department_id: department.id
-  });
-
-  if (recommendedHours && Array.isArray(recommendedHours)) {
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      const recommendedHoursFlattened = recommendedHours.map((item) => ({
-        ...item,
-        department_name: department.name,
-        department_id: department.id,
-        location_name: location.name,
-        location_id: location.id
-      }));
-      datos2.minimumIdealCoverage.push(...recommendedHoursFlattened);
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
-  }
-}
-  
-
-// Obtener Horas Recomendadas TOTALIZADAS (minimumIdealCoverage)
-    const totalRecommendedHours = {};
-
-    for (const department of departamentosCoverageUnicos) {
+    for (const department of departamentosRelevantesCompletosUnicos.slice(0, 30)) {
       const recommendedHours = await obtenerDatos('/recommended_hours', {
         from_date: rango.inicio,
         to_date: rango.fin,
         department_id: department.id
       });
 
-      if (recommendedHours) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          if (!totalRecommendedHours[location.id]) {
-            totalRecommendedHours[location.id] = {
-              week: lunes,
-              location_name: location.name,
-              location_id: location.id,
-              Total: 0
-            };
-          }
-          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
+      function transformarHorasPorFecha(recommended_hours_by_date) {
+        return Object.entries(recommended_hours_by_date).map(([date, total]) => ({
+          date,
+          total
+        }));
       }
-    }
 
-    for (const department of departamentosNonCoverageUnicos) {
-      const recommendedHours = await obtenerDatos('/recommended_hours', {
-        from_date: rango.inicio,
-        to_date: rango.fin,
-        department_id: department.id
-      });
+
+
 
       if (recommendedHours) {
         const location = ubicaciones.find(loc => loc.id === department.location_id);
         if (location) {
-          if (!totalRecommendedHours[location.id]) {
-            totalRecommendedHours[location.id] = {
-              week: lunes,
-              location_name: location.name,
-              location_id: location.id,
-              Total: 0
-            };
-          }
-          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
-      }
-    }
 
-    for (const department of departamentosTrainingUnicos) {
-      const recommendedHours = await obtenerDatos('/recommended_hours', {
-        from_date: rango.inicio,
-        to_date: rango.fin,
-        department_id: department.id
-      });
-
-      if (recommendedHours) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          if (!totalRecommendedHours[location.id]) {
-            totalRecommendedHours[location.id] = {
-              week: lunes,
-              location_name: location.name,
-              location_id: location.id,
-              Total: 0
-            };
-          }
-          totalRecommendedHours[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id}`);
-      }
-    }
-
-    // Convertir el objeto totalRecommendedHours a un array y agregarlo a datos.minimumIdealCoverage
-    datos.minimumIdealCoverage.Coverage = Object.values(totalRecommendedHours);
-
-
-// Obtener Cobertura Programada COMPLETA (scheduledCoverage)
-for (const department of departamentosRelevantesCompletosUnicos) {
-  const scheduledCoverage = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-    show_costs: false,
-    department_id: department.id
-  });
-
-  if (scheduledCoverage) {
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      const scheduledCoverageFlattened = scheduledCoverage.schedules.flatMap(schedule => 
-        schedule.schedules.map(shift => {
-          // Calcular el break_length en minutos
-          const breakLength = shift.breaks.reduce((total, b) => {
-            const breakStart = new Date(b.start * 1000);
-            const breakFinish = new Date(b.finish * 1000);
-            return total + (breakFinish - breakStart) / (1000 * 60);
-          }, 0);
-
-          return {
-            ...shift,
+          const recommendedHoursFlattened = transformarHorasPorFecha(recommendedHours.recommended_hours_by_date).map((item) => ({
+            ...item,
             department_name: department.name,
             department_id: department.id,
             location_name: location.name,
-            location_id: location.id,
-            break_length: breakLength
-          };
-        })
-      );
-      datos2.scheduledCoverage.push(...scheduledCoverageFlattened);
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-  }
-}
-
-   // Obtener Cobertura Programada TOTALIZADA (scheduledCoverage)
-for (const department of departamentosCoverageUnicos) {
-  const scheduledCoverage = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-    show_costs: false,
-    department_id: department.id
-  });
-
-  if (scheduledCoverage) {
-    let totalHoras = 0;
-
-    for (const schedule of scheduledCoverage.schedules) {
-      for (const shift of schedule.schedules) {
-        // Convertir las fechas Unix a objetos Date
-        const startDate = new Date(shift.start * 1000);
-        const finishDate = new Date(shift.finish * 1000);
-
-        // Calcular la diferencia en milisegundos
-        const diffMilliseconds = finishDate - startDate;
-
-        // Calcular el total de break en milisegundos
-        const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-
-        // Restar el break de la diferencia
-        const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-
-        // Convertir el total de milisegundos a horas y sumar al total
-        totalHoras += totalMilliseconds / (1000 * 60 * 60);
-      }
-    }
-
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      datos.scheduledCoverage.Coverage.push({
-        week: lunes,
-        location: location.name,
-        location_id: location.id,
-        total: totalHoras
-      });
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-  }
-}
-
-for (const department of departamentosNonCoverageUnicos) {
-  const scheduledCoverage = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-    show_costs: false,
-    department_id: department.id
-  });
-
-  if (scheduledCoverage) {
-    let totalHoras = 0;
-
-    for (const schedule of scheduledCoverage.schedules) {
-      for (const shift of schedule.schedules) {
-        // Convertir las fechas Unix a objetos Date
-        const startDate = new Date(shift.start * 1000);
-        const finishDate = new Date(shift.finish * 1000);
-
-        // Calcular la diferencia en milisegundos
-        const diffMilliseconds = finishDate - startDate;
-
-        // Calcular el total de break en milisegundos
-        const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-
-        // Restar el break de la diferencia
-        const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-
-        // Convertir el total de milisegundos a horas y sumar al total
-        totalHoras += totalMilliseconds / (1000 * 60 * 60);
-      }
-    }
-
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      datos.scheduledCoverage.NonCoverage.push({
-        week: lunes,
-        location: location.name,
-        location_id: location.id,
-        total: totalHoras
-      });
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-  }
-}
-
-for (const department of departamentosTrainingUnicos) {
-  const scheduledCoverage = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-    show_costs: false,
-    department_id: department.id
-  });
-
-  if (scheduledCoverage) {
-    let totalHoras = 0;
-
-    for (const schedule of scheduledCoverage.schedules) {
-      for (const shift of schedule.schedules) {
-        // Convertir las fechas Unix a objetos Date
-        const startDate = new Date(shift.start * 1000);
-        const finishDate = new Date(shift.finish * 1000);
-
-        // Calcular la diferencia en milisegundos
-        const diffMilliseconds = finishDate - startDate;
-
-        // Calcular el total de break en milisegundos
-        const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-
-        // Restar el break de la diferencia
-        const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-
-        // Convertir el total de milisegundos a horas y sumar al total
-        totalHoras += totalMilliseconds / (1000 * 60 * 60);
-      }
-    }
-
-    const location = ubicaciones.find(loc => loc.id === department.location_id);
-    if (location) {
-      datos.scheduledCoverage.Training.push({
-        week: lunes,
-        location: location.name,
-        location_id: location.id,
-        total: totalHoras
-      });
-    } else {
-      console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    }
-  } else {
-    console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-  }
-}
-
-if (ubicaciones) {
-  for (const location of ubicaciones) {
-    // Obtener Pronóstico de Transacciones
-    const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
-      from: rango.inicio,
-      to: rango.fin
-    });
-
-    //COMPLETO
-    if (predictedTransactions && Array.isArray(predictedTransactions.stats)) {
-      const predictedTransactionsFlattened = predictedTransactions.stats.map((item) => ({
-        ...item,
-        location_name: location.name,
-        location_id: location.id
-      }));
-
-      datos2.transactionForecast.push(...predictedTransactionsFlattened);
-
-    //TOTALIZADO
-    if (predictedTransactions && Array.isArray(predictedTransactions.stats)) {
-      // Sumar el valor de "stat"
-      const totalStat = predictedTransactions.stats.reduce((sum, stat) => sum + stat.stat, 0);
-
-      datos.transactionForecast.push({
-        week: lunes,
-        location: location.name,
-        location_id: location.id,
-        total: totalStat
-      });
-    } else {
-      console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
-    }
-  }
-}
-
-if (datastreams) {
-  for (const datastream of datastreams) {
-    // Encontrar el datastream join correspondiente
-    const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
-    if (datastreamJoin) {
-      const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
-      if (location) {
-        // Obtener Transacciones Reales
-        const actualTransactions = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
-          from: rango.inicio,
-          to: rango.fin,
-          type: 'checks'
-        });
-      }}}
-        //COMPLETO
-        if (Array.isArray(actualTransactions)) {
-          const actualTransactionsFlattened = actualTransactions.map((item) => ({
-            ...item,
-            location_name: location.name,
             location_id: location.id
           }));
+          rawData.minimumIdeal.push(...recommendedHoursFlattened);
 
-          datos2.actualTransactions.push(...actualTransactionsFlattened);
 
-        //TOTALIZADO
-        if (Array.isArray(actualTransactions)) {
-          // Sumar el valor de "stat"
-          const totalChecks = actualTransactions.reduce((sum, transaction) => sum + transaction.stat, 0);
+          if (department.name === 'Baristas DT' ||
+            department.name === 'Baristas' ||
+            department.name === 'Supervisores' ||
+            department.name === 'Supervisores DT') {
 
-          datos.actualTransactions.push({
-            week: lunes,
-            datastream: datastream.name,
-            location: location.name,
-            location_id: location.id,
-            total: totalChecks
-          });
-        } else {
-          console.error(`No se pudieron obtener las transacciones reales para el datastream con ID: ${datastream.id}`);
-        }
+            if (!totalRecommendedHoursCoverage[location.id]) {
+              totalRecommendedHoursCoverage[location.id] = {
+                week: lunes,
+                department_name: department.name,
+                department_id: department.id,
+                location_name: location.name,
+                location_id: location.id,
+                Total: 0
+              };
+            }
+            totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
-        // Obtener Ventas Reales
-        const actualSales = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
-          from: rango.inicio,
-          to: rango.fin,
-          type: 'sales count'
-        });
 
-        //COMPLETO
-        if (Array.isArray(actualSales)) {
-          const actualSalesFlattened = actualSales.map((item) => ({
-            ...item,
-            location_name: location.name,
-            location_id: location.id
-          }));
+          } else if (department.name === 'Non Coverage') {
+            if (!totalRecommendedHoursNonCoverage[location.id]) {
+              totalRecommendedHoursNonCoverage[location.id] = {
+                week: lunes,
 
-          datos2.Items.push(...actualSalesFlattened);
+                department_name: department.name,
+                department_id: department.id,
+                location_name: location.name,
+                location_id: location.id,
+                Total: 0
+              };
+            }
+            totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
-        //TOTALIZADO
-        if (Array.isArray(actualSales)) {
-          // Sumar el valor de "stat"
-          const totalSales = actualSales.reduce((sum, sale) => sum + sale.stat, 0);
 
-          datos.Items.push({
-            week: lunes,
-            datastream: datastream.name,
-            location: location.name,
-            location_id: location.id,
-            total: totalSales
-          });
-        } else {
-          console.error(`No se pudieron obtener las ventas reales para el datastream con ID: ${datastream.id}`);
-        }
-      } else {
-        console.error(`No se pudo encontrar la ubicación para el datastream join con ID: ${datastreamJoin.id}`);
-      }
-    } else {
-      console.error(`No se pudo encontrar el datastream join para el datastream con ID: ${datastream.id}`);
-    }
-  }
-}
+          } else if (department.name === 'Training') {
+            if (!totalRecommendedHoursTraning[location.id]) {
+              totalRecommendedHoursTraning[location.id] = {
+                week: lunes,
 
-    // Obtener Total de Horas Laborales Semanales Registradas
-const totalWeeklyWorkedHours = await obtenerDatos(`/timesheets/on/${rango.inicio}`, {
-  show_costs: false,
-  show_award_interpretation: false
-});
+                department_name: department.name,
+                department_id: department.id,
+                location_name: location.name,
+                location_id: location.id,
+                Total: 0
+              };
+            }
+            totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
-//COMPLETO
-if (Array.isArray(totalWeeklyWorkedHours)) {
-  for (const hours of totalWeeklyWorkedHours) {
-    if (hours.status === 'approved') {
-      const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
-      if (department) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          const shiftsFlattened = hours.shifts.map(shift => {
-            const { breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
-            return {
-              ...rest,
-              location_name: location.name,
-              location_id: location.id,
-              break_length: breaks.reduce((total, b) => total + b.length, 0)
-            };
-          });
+          }
 
-          datos2.totalPunchesLaborHours.push(...shiftsFlattened);
-        }}}
-//TOTALIZADO
-if (Array.isArray(totalWeeklyWorkedHours)) {
-  for (const hours of totalWeeklyWorkedHours) {
-    if (hours.status === 'approved') {
-      let totalHoras = 0;
 
-      for (const shift of hours.shifts) {
-        // Convertir las fechas Unix a objetos Date
-        const startDate = new Date(shift.start * 1000);
-        const finishDate = new Date(shift.finish * 1000);
+          console.log(`Obtenidas las horas recomendadaspara el departamento con ID: ${department.id}`)
 
-        // Calcular la diferencia en milisegundos
-        const diffMilliseconds = finishDate - startDate;
-
-        // Convertir el break de minutos a milisegundos
-        const breakMilliseconds = shift.break_length * 60 * 1000;
-
-        // Restar el break de la diferencia
-        const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-
-        // Convertir el total de milisegundos a horas y sumar al total
-        totalHoras += totalMilliseconds / (1000 * 60 * 60);
-      }
-
-      const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
-      if (department) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          datos.totalPunchesLaborHours.push({
-            week: lunes,
-            location: location.name,
-            location_id: location.id,
-            totalHoras: totalHoras
-          });
         } else {
           console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
         }
       } else {
-        console.error(`No se pudo encontrar el departamento con ID: ${hours.shifts[0].department_id}`);
+        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
       }
     }
+
+
+    /*
+
+    for (const department of departamentosRelevantesCompletosUnicos) {
+      const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
+        show_costs: false,
+        department_id: department.id
+      });
+
+      if (scheduled) {
+        let totalHoras = 0;
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
+          const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
+            schedule.schedules.map(shift => {
+              const breakLength = shift.breaks.reduce((total, b) => {
+                const breakStart = new Date(b.start * 1000);
+                const breakFinish = new Date(b.finish * 1000);
+                return total + (breakFinish - breakStart) / (1000 * 60);
+              }, 0);
+
+              return {
+                ...shift,
+                department_name: department.name,
+                department_id: department.id,
+                location_name: location.name,
+                location_id: location.id,
+                break_length: breakLength
+              };
+            })
+          );
+          rawData.scheduled.push(...scheduledFlattened);
+
+
+          if (department.name === 'Baristas DT' ||
+            department.name === 'Baristas' ||
+            department.name === 'Supervisores' ||
+            department.name === 'Supervisores DT') {
+            totalHoras = 0
+
+
+
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+            kpisByWeek.scheduled.Coverage.push({
+              week: lunes,
+              location: location.name,
+              location_id: location.id,
+              total: totalHoras
+            });
+          } else if (department.name === 'Non Coverage') {
+            totalHoras = 0;
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+
+            kpisByWeek.scheduled.NonCoverage.push({
+              week: lunes,
+              location: location.name,
+              location_id: location.id,
+              total: totalHoras
+            });
+
+          } else if (department.name === 'Training') {
+            totalHoras = 0;
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+
+
+            kpisByWeek.scheduled.Training.push({
+              week: lunes,
+              location: location.name,
+              location_id: location.id,
+              total: totalHoras
+            })
+          }
+
+
+          console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
+        } else {
+          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+        }
+      } else {
+        console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
+      }
+    }
+
+
+    for (const location of ubicaciones) {
+      const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
+        from: rango.inicio,
+        to: rango.fin
+      });
+
+      if (predictedTransactions && Array.isArray(predictedTransactions.stats)) {
+        const predictedTransactionsFlattened = predictedTransactions.stats.map((item) => ({
+          ...item,
+          location_name: location.name,
+          location_id: location.id
+        }));
+        rawData.transactionForecast.push(...predictedTransactionsFlattened);
+        const totalStat = predictedTransactions.stats.reduce((sum, stat) => sum + stat.stat, 0);
+        kpisByWeek.transactionForecast.push({
+          week: lunes,
+          location: location.name,
+          location_id: location.id,
+          total: totalStat
+        });
+
+      } else {
+        console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+      }
+    }
+
+
+    for (const datastream of datastreams) {
+      const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
+      if (datastreamJoin) {
+        const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
+        const storeStats = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
+          from: rango.inicio,
+          to: rango.fin
+        });
+
+        if (storeStats) {
+
+          if (storeStats[0].type === 'checks') {
+
+            const actualTransactionsFlattened = storeStats.map((item) => ({
+              ...item,
+              location_name: location.name,
+              location_id: location.id
+            }));
+
+            rawData.actualTransactions.push(...actualTransactionsFlattened);
+
+            const totalChecks = storeStats.reduce((sum, transaction) => sum + transaction.stat, 0);
+
+            kpisByWeek.actualTransactions.push({
+              week: lunes,
+              datastream: datastream.name,
+              location: location.name,
+              location_id: location.id,
+              total: totalChecks
+            });
+          }
+
+          else if (storeStats[0].type === 'sales count') {
+            const actualSalesFlattened = storeStats.map((item) => ({
+              ...item,
+              location_name: location.name,
+              location_id: location.id
+            }));
+
+            rawData.Items.push(...actualSalesFlattened);
+
+
+            const totalSales = storeStats.reduce((sum, sale) => sum + sale.stat, 0);
+            kpisByWeek.Items.push({
+              week: lunes,
+              datastream: datastream.name,
+              location: location.name,
+              location_id: location.id,
+              total: totalSales
+            });
+          }
+
+        }
+      }
+      console.error(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
+    }
+
+
+    const totalWeeklyWorkedHours = await obtenerDatos(`/timesheets/on/${rango.inicio}`, {
+      show_costs: false,
+      show_award_interpretation: false
+    });
+
+    if (Array.isArray(totalWeeklyWorkedHours)) {
+      for (const hours of totalWeeklyWorkedHours) {
+        if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
+          const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
+          if (department) {
+            const location = ubicaciones.find(loc => loc.id === department.location_id);
+            if (location) {
+              const shiftsFlattened = hours.shifts.map(shift => {
+                const { breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+                return {
+                  ...rest,
+                  location_name: location.name,
+                  location_id: location.id,
+                  break_length: breaks.reduce((total, b) => total + b.length, 0)
+                };
+              });
+
+              rawData.totalPunchesLaborHours.push(...shiftsFlattened);
+            }
+          }
+        }
+
+        if (Array.isArray(totalWeeklyWorkedHours)) {
+          let totalHoras = 0;
+          for (const hours of totalWeeklyWorkedHours) {
+            if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
+
+
+              for (const shift of hours.shifts) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.break_length * 60 * 1000;
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+
+              const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
+              if (department) {
+                const location = ubicaciones.find(loc => loc.id === department.location_id);
+                if (location) {
+                  kpisByWeek.totalPunchesLaborHours.push({
+                    week: lunes,
+                    location: location.name,
+                    location_id: location.id,
+                    totalHoras: totalHoras
+                  });
+                } else {
+                  console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+                }
+              } else {
+                console.error(`No se pudo encontrar el departamento con ID: ${hours.shifts[0].department_id}`);
+              }
+            }
+          }
+        } else {
+          console.error(`No se pudieron obtener las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
+        }
+
+
+      }
+      
+    }
+
+    */
+
+    kpisByWeek.minimumIdeal.Coverage.push(...Object.values(totalRecommendedHoursCoverage));
+    kpisByWeek.minimumIdeal.NonCoverage = Object.values(totalRecommendedHoursNonCoverage);
+    kpisByWeek.minimumIdeal.Training = Object.values(totalRecommendedHoursTraning);
+
   }
-} else {
-  console.error(`No se pudieron obtener las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
+
+
+  console.log(kpisByWeek, rawData)
+  return { kpisByWeek, rawData };
 }
 
-  
-}
-  return datos, datos2;
-}
-}
-}
 
-// async function createTables(pool) {
-//   const tableQueries = [
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='MinimumIdealCoverage' AND xtype='U')
-//     CREATE TABLE MinimumIdealCoverage (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       department NVARCHAR(255)
-//     )`,
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ScheduledCoverage' AND xtype='U')
-//     CREATE TABLE ScheduledCoverage (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       totalHoras FLOAT
-//     )`,
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='TransactionForecast' AND xtype='U')
-//     CREATE TABLE TransactionForecast (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       location NVARCHAR(255)
-//     )`,
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ActualTransactions' AND xtype='U')
-//     CREATE TABLE ActualTransactions (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       datastream NVARCHAR(255)
-//     )`,
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Items' AND xtype='U')
-//     CREATE TABLE Items (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       datastream NVARCHAR(255)
-//     )`,
-//     `IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='TotalPunchesLaborHours' AND xtype='U')
-//     CREATE TABLE TotalPunchesLaborHours (
-//       id INT IDENTITY(1,1) PRIMARY KEY,
-//       week DATE,
-//       datos NVARCHAR(MAX),
-//       totalHoras FLOAT
-//     )`
-//   ];
-
-//   for (const query of tableQueries) {
-//     await pool.request().query(query);
-//   }
-// }
-
-// async function insertData(pool, tableName, week, datos, extraField = null) {
-//   let query = `INSERT INTO ${tableName} (week, datos`;
-//   if (extraField) {
-//     query += `, ${extraField.name}`;
-//   }
-//   query += `) VALUES (@week, @datos`;
-//   if (extraField) {
-//     query += `, @${extraField.name}`;
-//   }
-//   query += `)`;
-
-//   const request = pool.request()
-//     .input('week', sql.Date, week)
-//     .input('datos', sql.NVarChar(sql.MAX), JSON.stringify(datos));
-
-//   if (extraField) {
-//     request.input(extraField.name, sql.NVarChar(255), extraField.value);
-//   }
-
-//   await request.query(query);
-// }
-
-// Definición de la función main
 async function main() {
+
+  console.log(`Obteniendo datos desde ${fechaInicio} hasta ${fechaFin}...`);
+
   const rutaActual = path.dirname(__filename);
-  const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'datos_tanda.json');
-  const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'datos_tanda_COMPLETOS.json');
+  const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'kpis_by_week.json');
+  const rutaJsonTOTALIZADOPorDia = path.join(rutaActual, 'data', 'kpis_by_date.json');
+  const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'raw_data.json');
 
   try {
-    // Crear el directorio 'data' si no existe
     await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
-
-    console.log(`Obteniendo datos desde ${fechaInicio} hasta ${fechaFin}...`);
-
-    const datosObtenidos = await obtenerDatosTandaApi(fechaInicio, fechaFin);
-    const jsonDatosTOTALIZADOS = JSON.stringify(datosObtenidos.datos, null, 2);
-    await writeFile(rutaJsonTOTALIZADO, jsonDatosTOTALIZADOS);
-
     await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
 
-    const jsonDatosCOMPLETOS = JSON.stringify(datosObtenidos.datos2, null, 2);
+    const datosObtenidos = await fetchMultipleWorkforceRequests(fechaInicio, fechaFin);
+
+    const jsonDatosTOTALIZADOS = JSON.stringify(datosObtenidos.kpisByWeek || {}, null, 2);
+    const jsonDatosCOMPLETOS = JSON.stringify(datosObtenidos.rawData || [], null, 2);
+
+    await writeFile(rutaJsonTOTALIZADO, jsonDatosTOTALIZADOS);
     await writeFile(rutaJsonCOMPLETO, jsonDatosCOMPLETOS);
 
     console.log(`Datos guardados exitosamente en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
 
-    // Código comentado para insertar datos en SQL Server
-    // for (const item of datos.minimumIdealCoverage) {
-    //   await insertData(pool, 'MinimumIdealCoverage', item.week, item.datos, { name: 'department', value: item.department });
-    // }
-    // for (const item of datos.scheduledCoverage) {
-    //   await insertData(pool, 'ScheduledCoverage', item.week, item.datos, { name: 'totalHoras', value: item.totalHoras });
-    // }
-    // for (const item of datos.transactionForecast) {
-    //   await insertData(pool, 'TransactionForecast', item.week, item.datos, { name: 'location', value: item.location });
-    // }
-    // for (const item of datos.actualTransactions) {
-    //   await insertData(pool, 'ActualTransactions', item.week, item.datos, { name: 'datastream', value: item.datastream });
-    // }
-    // for (const item of datos.Items) {
-    //   await insertData(pool, 'Items', item.week, item.datos, { name: 'datastream', value: item.datastream });
-    // }
-    // for (const item of datos.totalPunchesLaborHours) {
-    //   await insertData(pool, 'TotalPunchesLaborHours', item.week, item.datos, { name: 'totalHoras', value: item.totalHoras });
-    // }
 
-    // console.log('Datos subidos exitosamente a SQL Server');
   } catch (error) {
     console.error('Error al obtener o guardar los datos:', error);
   }
 }
 
-// Llamada a la función main
 main();
