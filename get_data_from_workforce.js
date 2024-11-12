@@ -15,7 +15,7 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fin
-const fechaInicio = '2024-11-04';
+const fechaInicio = '2024-11-06';
 const fechaFin = '2024-11-10';
 
 // Configuración de la conexión a SQL Server
@@ -69,10 +69,23 @@ function generateWeeklyRanges(inicio, fin) {
 
 function obtenerLunes(fecha) {
   const date = new Date(fecha);
-  const day = date.getDay();
-  const diff = day === 0 ? -6 : 1 - day; // Ajuste si el día es domingo
-  const lunes = new Date(date.setDate(date.getDate() + diff));
-  return lunes.toISOString().split('T')[0];
+  
+  // Obtener la fecha actual en UTC para evitar problemas con zonas horarias
+  date.setUTCHours(0, 0, 0, 0);
+  
+  const dayOfWeek = date.getUTCDay();
+  
+  // Retroceder hasta el lunes
+  // Si es domingo (0), retrocedemos 6 días
+  // Si es lunes (1), retrocedemos 0 días
+  // Si es martes (2), retrocedemos 1 día
+  // etc...
+  const diff = dayOfWeek === 0 ? -6 : -dayOfWeek + 1;
+  
+  // Ajustar la fecha
+  date.setUTCDate(date.getUTCDate() + diff);
+  
+  return date.toISOString().split('T')[0];
 }
 
 async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
@@ -126,241 +139,258 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   let totalRecommendedHoursNonCoverage = {};
   let totalRecommendedHoursTraning = {}
 
+  let locationHoursCoverage = {};
+  let locationHoursNonCoverage = {};
+  let locationHoursTraining = {};
+
+
   for (const rango of rangosSemanales) {
 
     const lunes = obtenerLunes(rango.inicio);
+    
 
-    for (const department of departamentosRelevantesCompletosUnicos.slice(0, 30)) {
-      const recommendedHours = await obtenerDatos('/recommended_hours', {
-        from_date: rango.inicio,
-        to_date: rango.fin,
-        department_id: department.id
-      });
+    // for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
+    //   const recommendedHours = await obtenerDatos('/recommended_hours', {
+    //     from_date: rango.inicio,
+    //     to_date: rango.fin,
+    //     department_id: department.id
+    //   });
 
-      function transformarHorasPorFecha(recommended_hours_by_date) {
-        return Object.entries(recommended_hours_by_date).map(([date, total]) => ({
-          date,
-          total
-        }));
-      }
-
-
-
-
-      if (recommendedHours) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-
-          const recommendedHoursFlattened = transformarHorasPorFecha(recommendedHours.recommended_hours_by_date).map((item) => ({
-            ...item,
-            department_name: department.name,
-            department_id: department.id,
-            location_name: location.name,
-            location_id: location.id
-          }));
-          rawData.minimumIdeal.push(...recommendedHoursFlattened);
-
-
-          if (department.name === 'Baristas DT' ||
-            department.name === 'Baristas' ||
-            department.name === 'Supervisores' ||
-            department.name === 'Supervisores DT') {
-
-            if (!totalRecommendedHoursCoverage[location.id]) {
-              totalRecommendedHoursCoverage[location.id] = {
-                week: lunes,
-                department_name: department.name,
-                department_id: department.id,
-                location_name: location.name,
-                location_id: location.id,
-                Total: 0
-              };
-            }
-            totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-
-          } else if (department.name === 'Non Coverage') {
-            if (!totalRecommendedHoursNonCoverage[location.id]) {
-              totalRecommendedHoursNonCoverage[location.id] = {
-                week: lunes,
-
-                department_name: department.name,
-                department_id: department.id,
-                location_name: location.name,
-                location_id: location.id,
-                Total: 0
-              };
-            }
-            totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-
-          } else if (department.name === 'Training') {
-            if (!totalRecommendedHoursTraning[location.id]) {
-              totalRecommendedHoursTraning[location.id] = {
-                week: lunes,
-
-                department_name: department.name,
-                department_id: department.id,
-                location_name: location.name,
-                location_id: location.id,
-                Total: 0
-              };
-            }
-            totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-          }
-
-
-          console.log(`Obtenidas las horas recomendadaspara el departamento con ID: ${department.id}`)
-
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
-      }
-    }
-
-
-    /*
-
-    for (const department of departamentosRelevantesCompletosUnicos) {
-      const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-        show_costs: false,
-        department_id: department.id
-      });
-
-      if (scheduled) {
-        let totalHoras = 0;
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
-            schedule.schedules.map(shift => {
-              const breakLength = shift.breaks.reduce((total, b) => {
-                const breakStart = new Date(b.start * 1000);
-                const breakFinish = new Date(b.finish * 1000);
-                return total + (breakFinish - breakStart) / (1000 * 60);
-              }, 0);
-
-              return {
-                ...shift,
-                department_name: department.name,
-                department_id: department.id,
-                location_name: location.name,
-                location_id: location.id,
-                break_length: breakLength
-              };
-            })
-          );
-          rawData.scheduled.push(...scheduledFlattened);
-
-
-          if (department.name === 'Baristas DT' ||
-            department.name === 'Baristas' ||
-            department.name === 'Supervisores' ||
-            department.name === 'Supervisores DT') {
-            totalHoras = 0
+    //   function transformarHorasPorFecha(recommended_hours_by_date) {
+    //     return Object.entries(recommended_hours_by_date).map(([date, total]) => ({
+    //       date,
+    //       total
+    //     }));
+    //   }
 
 
 
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
-            kpisByWeek.scheduled.Coverage.push({
-              week: lunes,
-              location: location.name,
-              location_id: location.id,
-              total: totalHoras
-            });
-          } else if (department.name === 'Non Coverage') {
-            totalHoras = 0;
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
 
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
+    //   if (recommendedHours) {
+    //     const location = ubicaciones.find(loc => loc.id === department.location_id);
+    //     if (location) {
 
-            kpisByWeek.scheduled.NonCoverage.push({
-              week: lunes,
-              location: location.name,
-              location_id: location.id,
-              total: totalHoras
-            });
-
-          } else if (department.name === 'Training') {
-            totalHoras = 0;
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
+    //       const recommendedHoursFlattened = transformarHorasPorFecha(recommendedHours.recommended_hours_by_date).map((item) => ({
+    //         ...item,
+    //         department_name: department.name,
+    //         department_id: department.id,
+    //         location_name: location.name,
+    //         location_id: location.id
+    //       }));
+    //       rawData.minimumIdeal.push(...recommendedHoursFlattened);
 
 
-            kpisByWeek.scheduled.Training.push({
-              week: lunes,
-              location: location.name,
-              location_id: location.id,
-              total: totalHoras
-            })
-          }
+    //       if (department.name === 'Baristas DT' ||
+    //         department.name === 'Baristas' ||
+    //         department.name === 'Supervisores' ||
+    //         department.name === 'Supervisores DT') {
+
+    //         if (!totalRecommendedHoursCoverage[location.id]) {
+    //           totalRecommendedHoursCoverage[location.id] = {
+    //             week: lunes,
+    //             department_name: department.name,
+    //             department_id: department.id,
+    //             location_name: location.name,
+    //             location_id: location.id,
+    //             Total: 0
+    //           };
+    //         }
+    //         totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
 
-          console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-      }
-    }
+    //       } else if (department.name === 'Non Coverage') {
+    //         if (!totalRecommendedHoursNonCoverage[location.id]) {
+    //           totalRecommendedHoursNonCoverage[location.id] = {
+    //             week: lunes,
+
+    //             department_name: department.name,
+    //             department_id: department.id,
+    //             location_name: location.name,
+    //             location_id: location.id,
+    //             Total: 0
+    //           };
+    //         }
+    //         totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
 
-    for (const location of ubicaciones) {
-      const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
-        from: rango.inicio,
-        to: rango.fin
-      });
+    //       } else if (department.name === 'Training') {
+    //         if (!totalRecommendedHoursTraning[location.id]) {
+    //           totalRecommendedHoursTraning[location.id] = {
+    //             week: lunes,
 
-      if (predictedTransactions && Array.isArray(predictedTransactions.stats)) {
-        const predictedTransactionsFlattened = predictedTransactions.stats.map((item) => ({
-          ...item,
-          location_name: location.name,
-          location_id: location.id
-        }));
-        rawData.transactionForecast.push(...predictedTransactionsFlattened);
-        const totalStat = predictedTransactions.stats.reduce((sum, stat) => sum + stat.stat, 0);
-        kpisByWeek.transactionForecast.push({
-          week: lunes,
-          location: location.name,
-          location_id: location.id,
-          total: totalStat
-        });
+    //             department_name: department.name,
+    //             department_id: department.id,
+    //             location_name: location.name,
+    //             location_id: location.id,
+    //             Total: 0
+    //           };
+    //         }
+    //         totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
-      } else {
-        console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
-      }
-    }
+    //       }
 
 
-    for (const datastream of datastreams) {
+    //       console.log(`Obtenidas las horas recomendadaspara el departamento con ID: ${department.id}`)
+
+    //     } else {
+    //       console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+    //     }
+    //   } else {
+    //     console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
+    //   }
+    // }
+
+
+    
+
+    // for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
+    //   const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
+    //     show_costs: false,
+    //     department_id: department.id
+    //   });
+
+    //   if (scheduled) {
+    //     let totalHoras = 0;
+    //     const location = ubicaciones.find(loc => loc.id === department.location_id);
+    //     if (location) {
+    //       const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
+    //         schedule.schedules.map(shift => {
+    //           const breakLength = shift.breaks.reduce((total, b) => {
+    //             const breakStart = new Date(b.start * 1000);
+    //             const breakFinish = new Date(b.finish * 1000);
+    //             return total + (breakFinish - breakStart) / (1000 * 60);
+    //           }, 0);
+
+    //           return {
+    //             ...shift,
+    //             department_name: department.name,
+    //             department_id: department.id,
+    //             location_name: location.name,
+    //             location_id: location.id,
+    //             break_length: breakLength
+    //           };
+    //         })
+    //       );
+    //       rawData.scheduled.push(...scheduledFlattened);
+
+
+    //   let totalHoras = 0; // Reiniciar totalHoras aquí
+
+    //   for (const schedule of scheduled.schedules) {
+    //     for (const shift of schedule.schedules) {
+    //       const startDate = new Date(shift.start * 1000);
+    //       const finishDate = new Date(shift.finish * 1000)
+    //       const diffMilliseconds = finishDate - startDate;
+          
+    //       const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+          
+    //       const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+    //       totalHoras += totalMilliseconds / (1000 * 60 * 60); // Convertir a horas
+          
+    //     }
+    //   }
+
+    //   totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
+
+    //   if (department.name === 'Baristas DT' ||
+    //       department.name === 'Baristas' ||
+    //       department.name === 'Supervisores' ||
+    //       department.name === 'Supervisores DT') {
+    //     if (!locationHoursCoverage[location.id]) {
+    //       locationHoursCoverage[location.id] = {
+    //         week: lunes,
+    //         location: location.name,
+    //         location_id: location.id,
+    //         total: 0
+    //       };
+    //     }
+    //     locationHoursCoverage[location.id].total += totalHoras;
+    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+        
+    //   } else if (department.name === 'Non Coverage') {
+    //     if (!locationHoursNonCoverage[location.id]) {
+    //       locationHoursNonCoverage[location.id] = {
+    //         week: lunes,
+    //         location: location.name,
+    //         location_id: location.id,
+    //         total: 0
+    //       };
+    //     }
+    //     locationHoursNonCoverage[location.id].total += totalHoras;
+    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+    //   } else if (department.name === 'Training') {
+    //     if (!locationHoursTraining[location.id]) {
+    //       locationHoursTraining[location.id] = {
+    //         week: lunes,
+    //         location: location.name,
+    //         location_id: location.id,
+    //         total: 0
+    //       };
+    //     }
+    //     locationHoursTraining[location.id].total += totalHoras;
+    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+    //   }
+
+
+    //       console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
+    //     } else {
+    //       console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+    //     }
+    //   } else {
+    //     console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
+    //   }
+    // }
+
+
+    // for (const location of ubicaciones.slice(0, 5)) {
+    //   try {
+    //     const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
+    //       from: rango.inicio,
+    //       to: rango.fin
+    //     });
+
+    //     if (Array.isArray(predictedTransactions)) {
+    //       let totalStats = 0;
+    //       const allStats = [];
+    
+    //       // Procesar cada array de stats
+    //       for (const transaction of predictedTransactions) {
+    //         if (Array.isArray(transaction.stats)) {
+    //           // Agregar a raw data
+    //           const flattened = transaction.stats.map(item => ({
+    //             ...item,
+    //             location_name: location.name,
+    //             location_id: location.id
+    //           }));
+    //           allStats.push(...flattened);
+              
+    //           // Sumar al total
+    //           totalStats += transaction.stats.reduce((sum, stat) => sum + (stat.stat || 0), 0);
+    //         }
+    //       }
+    
+    //       // Agregar al raw data
+    //       rawData.transactionForecast.push(...allStats);
+    
+    //       // Agregar a kpisByWeek
+    //       kpisByWeek.transactionForecast.push({
+    //         week: lunes,
+    //         location: location.name,
+    //         location_id: location.id,
+    //         total: totalStats
+    //       });
+    //     } else {
+    //       console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+    //     }
+    //   } catch (error) {
+    //     console.error(`Error al obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+    //     console.error(error);
+    //   }
+    // }
+
+    
+
+    for (const datastream of datastreams.slice(0, 15)) {
       const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
       if (datastreamJoin) {
         const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
@@ -417,6 +447,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
       console.error(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
     }
 
+    /*
 
     const totalWeeklyWorkedHours = await obtenerDatos(`/timesheets/on/${rango.inicio}`, {
       show_costs: false,
@@ -424,7 +455,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     });
 
     if (Array.isArray(totalWeeklyWorkedHours)) {
-      for (const hours of totalWeeklyWorkedHours) {
+      for (const hours of totalWeeklyWorkedHours.slice(0, 10)) {
         if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
           const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
           if (department) {
@@ -460,6 +491,8 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 totalHoras += totalMilliseconds / (1000 * 60 * 60);
               }
 
+              totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
+
               const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
               if (department) {
                 const location = ubicaciones.find(loc => loc.id === department.location_id);
@@ -490,8 +523,13 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     */
 
     kpisByWeek.minimumIdeal.Coverage.push(...Object.values(totalRecommendedHoursCoverage));
-    kpisByWeek.minimumIdeal.NonCoverage = Object.values(totalRecommendedHoursNonCoverage);
-    kpisByWeek.minimumIdeal.Training = Object.values(totalRecommendedHoursTraning);
+    kpisByWeek.minimumIdeal.NonCoverage.push(...Object.values(totalRecommendedHoursNonCoverage));
+    kpisByWeek.minimumIdeal.Training.push(...Object.values(totalRecommendedHoursTraning));
+
+    // Convertir los objetos locationHours en arrays y agregarlos a kpisByWeek
+    kpisByWeek.scheduled.Coverage = Object.values(locationHoursCoverage);
+    kpisByWeek.scheduled.NonCoverage = Object.values(locationHoursNonCoverage);
+    kpisByWeek.scheduled.Training = Object.values(locationHoursTraining);
 
   }
 

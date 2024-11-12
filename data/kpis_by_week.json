@@ -1,203 +1,8 @@
 {
   "minimumIdeal": {
-    "Coverage": [
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 906574,
-        "location_name": "Macy's Ponce",
-        "location_id": 234997,
-        "Total": 480.25
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Supervisores",
-        "department_id": 914002,
-        "location_name": "Santa Isabel",
-        "location_id": 236536,
-        "Total": 193.25
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Supervisores",
-        "department_id": 934681,
-        "location_name": "Los Colobos",
-        "location_id": 240625,
-        "Total": 656.5
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Supervisores",
-        "department_id": 934679,
-        "location_name": "Caribe Hilton",
-        "location_id": 240626,
-        "Total": 573
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 942256,
-        "location_name": "Plaza Del Caribe-kiosk",
-        "location_id": 241517,
-        "Total": 194.5
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Supervisores",
-        "department_id": 948592,
-        "location_name": "Hotel San Juan",
-        "location_id": 243153,
-        "Total": 312.5
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 948596,
-        "location_name": "Starbucks Express",
-        "location_id": 243154,
-        "Total": 198.5
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 953591,
-        "location_name": "Airport",
-        "location_id": 244396,
-        "Total": 413.5
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 1003959,
-        "location_name": "Cala Costas",
-        "location_id": 258657,
-        "Total": 422
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Baristas",
-        "department_id": 1004764,
-        "location_name": "Condado Village",
-        "location_id": 258845,
-        "Total": 225.5
-      }
-    ],
-    "NonCoverage": [
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 909335,
-        "location_name": "Macy's Ponce",
-        "location_id": 234997,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 942604,
-        "location_name": "Caribe Hilton",
-        "location_id": 240626,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 942608,
-        "location_name": "Los Colobos",
-        "location_id": 240625,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 948593,
-        "location_name": "Hotel San Juan",
-        "location_id": 243153,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 948597,
-        "location_name": "Starbucks Express",
-        "location_id": 243154,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 1003962,
-        "location_name": "Cala Costas",
-        "location_id": 258657,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Non Coverage",
-        "department_id": 1004765,
-        "location_name": "Condado Village",
-        "location_id": 258845,
-        "Total": 0
-      }
-    ],
-    "Training": [
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 909336,
-        "location_name": "Macy's Ponce",
-        "location_id": 234997,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 942605,
-        "location_name": "Caribe Hilton",
-        "location_id": 240626,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 942609,
-        "location_name": "Los Colobos",
-        "location_id": 240625,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 948594,
-        "location_name": "Hotel San Juan",
-        "location_id": 243153,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 948598,
-        "location_name": "Starbucks Express",
-        "location_id": 243154,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 1003961,
-        "location_name": "Cala Costas",
-        "location_id": 258657,
-        "Total": 0
-      },
-      {
-        "week": "2024-10-29",
-        "department_name": "Training",
-        "department_id": 1004766,
-        "location_name": "Condado Village",
-        "location_id": 258845,
-        "Total": 0
-      }
-    ]
+    "Coverage": [],
+    "NonCoverage": [],
+    "Training": []
   },
   "scheduled": {
     "Coverage": [],
@@ -205,7 +10,86 @@
     "Training": []
   },
   "transactionForecast": [],
-  "actualTransactions": [],
-  "Items": [],
+  "actualTransactions": [
+    {
+      "week": "2024-11-04",
+      "datastream": "Checks(Auxilio MutuoUber Eats)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 67
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "Checks(Auxilio MutuoStarbucks Cafe)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 1272
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "Checks(Auxilio MutuoDrive Thru)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 0
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "Checks(Auxilio MutuoDoor Dash)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 81
+    }
+  ],
+  "Items": [
+    {
+      "week": "2024-11-04",
+      "datastream": "TEA(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 123
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "SERVEWARE(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 50
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "SAND/PPD FOOD(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 406
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "RETAIL TEA(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 0
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "RETAIL COFFEE(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 6
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "PACKAGED FOOD(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 67
+    },
+    {
+      "week": "2024-11-04",
+      "datastream": "OTHER BEVERAGES(Auxilio Mutuo)",
+      "location": "Auxilio Mutuo",
+      "location_id": 275047,
+      "total": 322
+    }
+  ],
   "totalPunchesLaborHours": []
 }
