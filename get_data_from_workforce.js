@@ -171,7 +171,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (!totalRecommendedHoursCoverage[location.id]) {
               totalRecommendedHoursCoverage[location.id] = {
                 week: lunes,
-                location_name: location.name,
+                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -183,7 +183,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (!totalRecommendedHoursNonCoverage[location.id]) {
               totalRecommendedHoursNonCoverage[location.id] = {
                 week: lunes,
-                location_name: location.name,
+                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -195,7 +195,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (!totalRecommendedHoursTraning[location.id]) {
               totalRecommendedHoursTraning[location.id] = {
                 week: lunes,
-                location_name: location.name,
+                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -238,7 +238,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 ...shift,
                 department_name: department.name,
                 department_id: department.id,
-                location_name: location.name,
+                location: location.name,
                 location_id: location.id,
                 break_start: shift.breaks.length > 1 ? shift.breaks[0].start : null,
                 break_finish: shift.breaks.length > 1 ? shift.breaks[0].finish : null,
