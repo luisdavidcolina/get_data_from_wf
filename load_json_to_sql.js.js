@@ -34,6 +34,7 @@ function getSqlType(value) {
 
 // Función para crear una tabla SQL a partir de la estructura de un objeto
 async function createTableFromObject(pool, tableName, object) {
+  delete object.false
   const columns = Object.entries(object)
     .map(([key, value]) => `[${toSnakeCase(key)}] ${getSqlType(value)}`)
     .join(', ');
