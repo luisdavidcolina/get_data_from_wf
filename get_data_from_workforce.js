@@ -243,10 +243,12 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 break_start: shift.breaks.length > 1 ? shift.breaks[0].start : null,
                 break_finish: shift.breaks.length > 1 ? shift.breaks[0].finish : null,
                 break_length: breakLength,
+                roster_id: shift.id
               };
 
               delete newShift.breaks
               delete newShift.time_zone
+              delete newShift.id
               return newShift
             })
           );
@@ -354,11 +356,16 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           for (const transaction of predictedTransactions) {
             if (Array.isArray(transaction.stats)) {
               // Agregar a raw data
-              const flattened = transaction.stats.filter(storeStat => storeStat.type === 'checks').map(item => ({
-                ...item,
-                location_name: location.name,
-                location_id: location.id
-              }));
+              const flattened = transaction.stats.filter(storeStat => storeStat.type === 'checks').map(item => {
+                let newItem = {
+                  ...item,
+                  location_name: location.name,
+                  location_id: location.id,
+                  predicted_storestats_id: item.id
+                }
+                delete newItem.id
+                return newItem
+              });
               allStats.push(...flattened);
 
               // Sumar al total
@@ -400,11 +407,15 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
           if ((storeStats[0]) && (storeStats[0].type) && (storeStats[0].type === 'checks')) {
 
-            const actualTransactionsFlattened = storeStats.map((item) => ({
-              ...item,
-              location_name: location.name,
-              location_id: location.id
-            }));
+            const actualTransactionsFlattened = storeStats.map((item) => {
+              let newItem = {
+                ...item,
+                location_name: location.name,
+                location_id: location.id,
+                storestats_id: item.id
+              }
+              return newItem
+            });
 
             rawData.actualTransactions.push(...actualTransactionsFlattened);
 
@@ -419,12 +430,15 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           }
 
           else if ((storeStats[0]) && (storeStats[0].type) && (storeStats[0].type === 'sales count')) {
-            const actualSalesFlattened = storeStats.map((item) => ({
-              ...item,
-              location_name: location.name,
-              location_id: location.id
-            }));
-
+            const actualSalesFlattened =  storeStats.map((item) => {
+              let newItem = {
+                ...item,
+                location_name: location.name,
+                location_id: location.id,
+                storestats_id: item.id
+              }
+              return newItem
+            });
             rawData.Items.push(...actualSalesFlattened);
 
 
@@ -463,11 +477,13 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
                 return shiftDate >= inicio && shiftDate <= fin;
               }).map(shift => {
-                const { breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+                let  shift_id = shift.id
+                const { id, breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
                 return {
                   ...rest,
                   location_name: location.name,
                   location_id: location.id,
+                  shift_id,
                   break_length: breaks.reduce((total, b) => total + b.length, 0)
                 };
               });
