@@ -5,91 +5,87 @@
     "Training": []
   },
   "scheduled": {
-    "Coverage": [],
-    "NonCoverage": [],
-    "Training": []
+    "Coverage": [
+      {
+        "week": "2024-11-04",
+        "location": "Macy's Ponce",
+        "location_id": 234997,
+        "total": 36336
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Santa Isabel",
+        "location_id": 236536,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Los Colobos",
+        "location_id": 240625,
+        "total": 36336
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Caribe Hilton",
+        "location_id": 240626,
+        "total": 36336
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Plaza Del Caribe-kiosk",
+        "location_id": 241517,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Hotel San Juan",
+        "location_id": 243153,
+        "total": 18168
+      }
+    ],
+    "NonCoverage": [
+      {
+        "week": "2024-11-04",
+        "location": "Macy's Ponce",
+        "location_id": 234997,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Los Colobos",
+        "location_id": 240625,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Caribe Hilton",
+        "location_id": 240626,
+        "total": 18168
+      }
+    ],
+    "Training": [
+      {
+        "week": "2024-11-04",
+        "location": "Macy's Ponce",
+        "location_id": 234997,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Los Colobos",
+        "location_id": 240625,
+        "total": 18168
+      },
+      {
+        "week": "2024-11-04",
+        "location": "Caribe Hilton",
+        "location_id": 240626,
+        "total": 18168
+      }
+    ]
   },
   "transactionForecast": [],
-  "actualTransactions": [
-    {
-      "week": "2024-11-04",
-      "datastream": "Checks(Auxilio MutuoUber Eats)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 67
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "Checks(Auxilio MutuoStarbucks Cafe)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 1272
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "Checks(Auxilio MutuoDrive Thru)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 0
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "Checks(Auxilio MutuoDoor Dash)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 81
-    }
-  ],
-  "Items": [
-    {
-      "week": "2024-11-04",
-      "datastream": "TEA(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 123
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "SERVEWARE(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 50
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "SAND/PPD FOOD(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 406
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "RETAIL TEA(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 0
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "RETAIL COFFEE(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 6
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "PACKAGED FOOD(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 67
-    },
-    {
-      "week": "2024-11-04",
-      "datastream": "OTHER BEVERAGES(Auxilio Mutuo)",
-      "location": "Auxilio Mutuo",
-      "location_id": 275047,
-      "total": 322
-    }
-  ],
+  "actualTransactions": [],
+  "Items": [],
   "totalPunchesLaborHours": []
 }

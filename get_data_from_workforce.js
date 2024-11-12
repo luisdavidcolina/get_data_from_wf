@@ -139,9 +139,9 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   let totalRecommendedHoursNonCoverage = {};
   let totalRecommendedHoursTraning = {}
 
-  let locationHoursCoverage = {};
-  let locationHoursNonCoverage = {};
-  let locationHoursTraining = {};
+  const locationHoursCoverage = {};
+  const locationHoursNonCoverage = {};
+  const locationHoursTraining = {};
 
 
   for (const rango of rangosSemanales) {
@@ -243,103 +243,109 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
     
 
-    // for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
-    //   const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-    //     show_costs: false,
-    //     department_id: department.id
-    //   });
+    for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
+      const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
+        show_costs: false,
+        department_id: department.id
+      });
 
-    //   if (scheduled) {
-    //     let totalHoras = 0;
-    //     const location = ubicaciones.find(loc => loc.id === department.location_id);
-    //     if (location) {
-    //       const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
-    //         schedule.schedules.map(shift => {
-    //           const breakLength = shift.breaks.reduce((total, b) => {
-    //             const breakStart = new Date(b.start * 1000);
-    //             const breakFinish = new Date(b.finish * 1000);
-    //             return total + (breakFinish - breakStart) / (1000 * 60);
-    //           }, 0);
+      if (scheduled) {
+        let totalHoras = 0;
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
+          const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
+            schedule.schedules.map(shift => {
+              const breakLength = shift.breaks.reduce((total, b) => {
+                const breakStart = new Date(b.start * 1000);
+                const breakFinish = new Date(b.finish * 1000);
+                return total + (breakFinish - breakStart) / (1000 * 60);
+              }, 0);
 
-    //           return {
-    //             ...shift,
-    //             department_name: department.name,
-    //             department_id: department.id,
-    //             location_name: location.name,
-    //             location_id: location.id,
-    //             break_length: breakLength
-    //           };
-    //         })
-    //       );
-    //       rawData.scheduled.push(...scheduledFlattened);
+              return {
+                ...shift,
+                department_name: department.name,
+                department_id: department.id,
+                location_name: location.name,
+                location_id: location.id,
+                break_length: breakLength
+              };
+            })
+          );
+          rawData.scheduled.push(...scheduledFlattened);
 
 
-    //   let totalHoras = 0; // Reiniciar totalHoras aquí
+      let totalHoras = 0; // Reiniciar totalHoras aquí
 
-    //   for (const schedule of scheduled.schedules) {
-    //     for (const shift of schedule.schedules) {
-    //       const startDate = new Date(shift.start * 1000);
-    //       const finishDate = new Date(shift.finish * 1000)
-    //       const diffMilliseconds = finishDate - startDate;
+      for (const schedule of scheduled.schedules) {
+        for (const shift of schedule.schedules) {
+          const startDate = new Date(shift.start * 1000);
+          const finishDate = new Date(shift.finish * 1000);
+          console.log(`Turno - Inicio: ${startDate.toISOString()}, Fin: ${finishDate.toISOString()}`);
           
-    //       const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+          const diffMilliseconds = finishDate - startDate;
+          const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+          const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+          const horasDelTurno = totalMilliseconds / (1000 * 60 * 60);
           
-    //       const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-    //       totalHoras += totalMilliseconds / (1000 * 60 * 60); // Convertir a horas
+          console.log(`Horas del turno: ${horasDelTurno}`);
           
-    //     }
-    //   }
+          totalHoras += horasDelTurno;
+        }
+      }
 
-    //   totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
+      totalHoras = Math.round(totalHoras);
+      console.log(`Total horas final para ${department.name}: ${totalHoras}`);
 
-    //   if (department.name === 'Baristas DT' ||
-    //       department.name === 'Baristas' ||
-    //       department.name === 'Supervisores' ||
-    //       department.name === 'Supervisores DT') {
-    //     if (!locationHoursCoverage[location.id]) {
-    //       locationHoursCoverage[location.id] = {
-    //         week: lunes,
-    //         location: location.name,
-    //         location_id: location.id,
-    //         total: 0
-    //       };
-    //     }
-    //     locationHoursCoverage[location.id].total += totalHoras;
-    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+      totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
+
+      if (department.name === 'Baristas DT' ||
+          department.name === 'Baristas' ||
+          department.name === 'Supervisores' ||
+          department.name === 'Supervisores DT') {
+        if (!locationHoursCoverage[location.id]) {
+          locationHoursCoverage[location.id] = {
+            week: lunes,
+            location: location.name,
+            location_id: location.id,
+            total: 0
+          };
+        }
+        locationHoursCoverage[location.id].total += totalHoras;
+        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
         
-    //   } else if (department.name === 'Non Coverage') {
-    //     if (!locationHoursNonCoverage[location.id]) {
-    //       locationHoursNonCoverage[location.id] = {
-    //         week: lunes,
-    //         location: location.name,
-    //         location_id: location.id,
-    //         total: 0
-    //       };
-    //     }
-    //     locationHoursNonCoverage[location.id].total += totalHoras;
-    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
-    //   } else if (department.name === 'Training') {
-    //     if (!locationHoursTraining[location.id]) {
-    //       locationHoursTraining[location.id] = {
-    //         week: lunes,
-    //         location: location.name,
-    //         location_id: location.id,
-    //         total: 0
-    //       };
-    //     }
-    //     locationHoursTraining[location.id].total += totalHoras;
-    //     console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
-    //   }
+      } else if (department.name === 'Non Coverage') {
+        if (!locationHoursNonCoverage[location.id]) {
+          locationHoursNonCoverage[location.id] = {
+            week: lunes,
+            location: location.name,
+            location_id: location.id,
+            total: 0
+          };
+        }
+        locationHoursNonCoverage[location.id].total += totalHoras;
+        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+      } else if (department.name === 'Training') {
+        if (!locationHoursTraining[location.id]) {
+          locationHoursTraining[location.id] = {
+            week: lunes,
+            location: location.name,
+            location_id: location.id,
+            total: 0
+          };
+        }
+        locationHoursTraining[location.id].total += totalHoras;
+        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
+      }
 
 
-    //       console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
-    //     } else {
-    //       console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    //     }
-    //   } else {
-    //     console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
-    //   }
-    // }
+          console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
+        } else {
+          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+        }
+      } else {
+        console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
+      }
+    }
 
 
     // for (const location of ubicaciones.slice(0, 5)) {
@@ -390,62 +396,62 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
     
 
-    for (const datastream of datastreams.slice(0, 15)) {
-      const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
-      if (datastreamJoin) {
-        const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
-        const storeStats = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
-          from: rango.inicio,
-          to: rango.fin
-        });
+    // for (const datastream of datastreams.slice(0, 15)) {
+    //   const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
+    //   if (datastreamJoin) {
+    //     const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
+    //     const storeStats = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
+    //       from: rango.inicio,
+    //       to: rango.fin
+    //     });
 
-        if (storeStats) {
+    //     if (storeStats) {
 
-          if (storeStats[0].type === 'checks') {
+    //       if (storeStats[0].type === 'checks') {
 
-            const actualTransactionsFlattened = storeStats.map((item) => ({
-              ...item,
-              location_name: location.name,
-              location_id: location.id
-            }));
+    //         const actualTransactionsFlattened = storeStats.map((item) => ({
+    //           ...item,
+    //           location_name: location.name,
+    //           location_id: location.id
+    //         }));
 
-            rawData.actualTransactions.push(...actualTransactionsFlattened);
+    //         rawData.actualTransactions.push(...actualTransactionsFlattened);
 
-            const totalChecks = storeStats.reduce((sum, transaction) => sum + transaction.stat, 0);
+    //         const totalChecks = storeStats.reduce((sum, transaction) => sum + transaction.stat, 0);
 
-            kpisByWeek.actualTransactions.push({
-              week: lunes,
-              datastream: datastream.name,
-              location: location.name,
-              location_id: location.id,
-              total: totalChecks
-            });
-          }
+    //         kpisByWeek.actualTransactions.push({
+    //           week: lunes,
+    //           datastream: datastream.name,
+    //           location: location.name,
+    //           location_id: location.id,
+    //           total: totalChecks
+    //         });
+    //       }
 
-          else if (storeStats[0].type === 'sales count') {
-            const actualSalesFlattened = storeStats.map((item) => ({
-              ...item,
-              location_name: location.name,
-              location_id: location.id
-            }));
+    //       else if (storeStats[0].type === 'sales count') {
+    //         const actualSalesFlattened = storeStats.map((item) => ({
+    //           ...item,
+    //           location_name: location.name,
+    //           location_id: location.id
+    //         }));
 
-            rawData.Items.push(...actualSalesFlattened);
+    //         rawData.Items.push(...actualSalesFlattened);
 
 
-            const totalSales = storeStats.reduce((sum, sale) => sum + sale.stat, 0);
-            kpisByWeek.Items.push({
-              week: lunes,
-              datastream: datastream.name,
-              location: location.name,
-              location_id: location.id,
-              total: totalSales
-            });
-          }
+    //         const totalSales = storeStats.reduce((sum, sale) => sum + sale.stat, 0);
+    //         kpisByWeek.Items.push({
+    //           week: lunes,
+    //           datastream: datastream.name,
+    //           location: location.name,
+    //           location_id: location.id,
+    //           total: totalSales
+    //         });
+    //       }
 
-        }
-      }
-      console.error(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
-    }
+    //     }
+    //   }
+    //   console.error(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
+    // }
 
     /*
 
@@ -533,8 +539,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
   }
 
-
-  console.log(kpisByWeek, rawData)
   return { kpisByWeek, rawData };
 }
 
