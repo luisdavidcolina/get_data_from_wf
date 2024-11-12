@@ -464,7 +464,13 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           if (department) {
             const location = ubicaciones.find(loc => loc.id === department.location_id);
             if (location) {
-              const shiftsFlattened = hours.shifts.map(shift => {
+              const shiftsFlattened = hours.shifts.filter(shift => {
+                const shiftDate = new Date(shift.date);
+                const inicio = new Date(rango.inicio);
+                const fin = new Date(rango.fin);
+
+                return shiftDate >= inicio && shiftDate <= fin;
+              }).map(shift => {
                 const { breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
                 return {
                   ...rest,
