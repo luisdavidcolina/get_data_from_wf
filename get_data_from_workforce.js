@@ -245,8 +245,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
     for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
       const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
-        show_costs: false,
-        department_id: department.id
+        show_costs: false
       });
     
       if (scheduled) {
@@ -279,7 +278,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             
             let totalHoras = 0;
             for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
+              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
                 const startDate = new Date(shift.start * 1000);
                 const finishDate = new Date(shift.finish * 1000);
                 const diffMilliseconds = finishDate - startDate;
@@ -288,7 +287,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 totalHoras += totalMilliseconds / (1000 * 60 * 60);
               }
             }
-            
+            totalHoras = Math.round(totalHoras);
     
             if (!locationHoursCoverage[location.id]) {
               locationHoursCoverage[location.id] = {
@@ -304,7 +303,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           } else if (department.name === 'Non Coverage') {
             let totalHoras = 0;
             for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
+              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
                 const startDate = new Date(shift.start * 1000);
                 const finishDate = new Date(shift.finish * 1000);
                 const diffMilliseconds = finishDate - startDate;
@@ -313,7 +312,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 totalHoras += totalMilliseconds / (1000 * 60 * 60);
               }
             }
-            
+            totalHoras = Math.round(totalHoras);
     
             if (!locationHoursNonCoverage[location.id]) {
               locationHoursNonCoverage[location.id] = {
@@ -329,7 +328,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           } else if (department.name === 'Training') {
             let totalHoras = 0;
             for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules) {
+              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
                 const startDate = new Date(shift.start * 1000);
                 const finishDate = new Date(shift.finish * 1000);
                 const diffMilliseconds = finishDate - startDate;
@@ -338,7 +337,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 totalHoras += totalMilliseconds / (1000 * 60 * 60);
               }
             }
-            
+            totalHoras = Math.round(totalHoras);
     
             if (!locationHoursTraining[location.id]) {
               locationHoursTraining[location.id] = {
