@@ -7,80 +7,80 @@
   "scheduled": {
     "Coverage": [
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Macy's Ponce",
         "location_id": 234997,
-        "total": 36336
+        "total": 36835.566666666666
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Santa Isabel",
         "location_id": 236536,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Los Colobos",
         "location_id": 240625,
-        "total": 36336
+        "total": 36835.566666666666
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Caribe Hilton",
         "location_id": 240626,
-        "total": 36336
+        "total": 36835.566666666666
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Plaza Del Caribe-kiosk",
         "location_id": 241517,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Hotel San Juan",
         "location_id": 243153,
-        "total": 18168
+        "total": 18417.783333333333
       }
     ],
     "NonCoverage": [
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Macy's Ponce",
         "location_id": 234997,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Los Colobos",
         "location_id": 240625,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Caribe Hilton",
         "location_id": 240626,
-        "total": 18168
+        "total": 18417.783333333333
       }
     ],
     "Training": [
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Macy's Ponce",
         "location_id": 234997,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Los Colobos",
         "location_id": 240625,
-        "total": 18168
+        "total": 18417.783333333333
       },
       {
-        "week": "2024-11-04",
+        "week": "2024-09-02",
         "location": "Caribe Hilton",
         "location_id": 240626,
-        "total": 18168
+        "total": 18417.783333333333
       }
     ]
   },

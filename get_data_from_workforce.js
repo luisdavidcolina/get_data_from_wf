@@ -15,8 +15,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fin
-const fechaInicio = '2024-11-06';
-const fechaFin = '2024-11-10';
+const fechaInicio = '2024-09-02';
+const fechaFin = '2024-09-08';
 
 // Configuración de la conexión a SQL Server
 const sqlConfig = {
@@ -248,9 +248,8 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
         show_costs: false,
         department_id: department.id
       });
-
+    
       if (scheduled) {
-        let totalHoras = 0;
         const location = ubicaciones.find(loc => loc.id === department.location_id);
         if (location) {
           const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
@@ -260,7 +259,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 const breakFinish = new Date(b.finish * 1000);
                 return total + (breakFinish - breakStart) / (1000 * 60);
               }, 0);
-
+    
               return {
                 ...shift,
                 department_name: department.name,
@@ -272,78 +271,89 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             })
           );
           rawData.scheduled.push(...scheduledFlattened);
-
-
-      let totalHoras = 0; // Reiniciar totalHoras aquí
-
-      for (const schedule of scheduled.schedules) {
-        for (const shift of schedule.schedules) {
-          const startDate = new Date(shift.start * 1000);
-          const finishDate = new Date(shift.finish * 1000);
-          console.log(`Turno - Inicio: ${startDate.toISOString()}, Fin: ${finishDate.toISOString()}`);
-          
-          const diffMilliseconds = finishDate - startDate;
-          const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-          const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-          const horasDelTurno = totalMilliseconds / (1000 * 60 * 60);
-          
-          console.log(`Horas del turno: ${horasDelTurno}`);
-          
-          totalHoras += horasDelTurno;
+    
+          if (department.name === 'Baristas DT' ||
+              department.name === 'Baristas' ||
+              department.name === 'Supervisores' ||
+              department.name === 'Supervisores DT') {
+            
+            let totalHoras = 0;
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+            
+    
+            if (!locationHoursCoverage[location.id]) {
+              locationHoursCoverage[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            locationHoursCoverage[location.id].total += totalHoras;
+            console.log(`Total horas Coverage para ${location.name} (${department.name}): ${totalHoras}`);
+            
+          } else if (department.name === 'Non Coverage') {
+            let totalHoras = 0;
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+            
+    
+            if (!locationHoursNonCoverage[location.id]) {
+              locationHoursNonCoverage[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            locationHoursNonCoverage[location.id].total += totalHoras;
+            console.log(`Total horas Non Coverage para ${location.name} (${department.name}): ${totalHoras}`);
+    
+          } else if (department.name === 'Training') {
+            let totalHoras = 0;
+            for (const schedule of scheduled.schedules) {
+              for (const shift of schedule.schedules) {
+                const startDate = new Date(shift.start * 1000);
+                const finishDate = new Date(shift.finish * 1000);
+                const diffMilliseconds = finishDate - startDate;
+                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
+                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
+                totalHoras += totalMilliseconds / (1000 * 60 * 60);
+              }
+            }
+            
+    
+            if (!locationHoursTraining[location.id]) {
+              locationHoursTraining[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            locationHoursTraining[location.id].total += totalHoras;
+            console.log(`Total horas Training para ${location.name} (${department.name}): ${totalHoras}`);
+          }
+    
+          console.log(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
         }
-      }
-
-      totalHoras = Math.round(totalHoras);
-      console.log(`Total horas final para ${department.name}: ${totalHoras}`);
-
-      totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
-
-      if (department.name === 'Baristas DT' ||
-          department.name === 'Baristas' ||
-          department.name === 'Supervisores' ||
-          department.name === 'Supervisores DT') {
-        if (!locationHoursCoverage[location.id]) {
-          locationHoursCoverage[location.id] = {
-            week: lunes,
-            location: location.name,
-            location_id: location.id,
-            total: 0
-          };
-        }
-        locationHoursCoverage[location.id].total += totalHoras;
-        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
-        
-      } else if (department.name === 'Non Coverage') {
-        if (!locationHoursNonCoverage[location.id]) {
-          locationHoursNonCoverage[location.id] = {
-            week: lunes,
-            location: location.name,
-            location_id: location.id,
-            total: 0
-          };
-        }
-        locationHoursNonCoverage[location.id].total += totalHoras;
-        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
-      } else if (department.name === 'Training') {
-        if (!locationHoursTraining[location.id]) {
-          locationHoursTraining[location.id] = {
-            week: lunes,
-            location: location.name,
-            location_id: location.id,
-            total: 0
-          };
-        }
-        locationHoursTraining[location.id].total += totalHoras;
-        console.log(`Total horas para ${location.name} (${department.name}): ${totalHoras}`);
-      }
-
-
-          console.error(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
-        } else {
-          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-        }
-      } else {
-        console.error(`No se pudieron obtener las coberturas programadas para el departamento con ID: ${department.id}`);
       }
     }
 
