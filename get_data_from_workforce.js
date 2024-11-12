@@ -491,7 +491,13 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
 
 
-              for (const shift of hours.shifts) {
+              for (const shift of hours.shifts.filter(shift => {
+                const shiftDate = new Date(shift.date);
+                const inicio = new Date(rango.inicio);
+                const fin = new Date(rango.fin);
+
+                return shiftDate >= inicio && shiftDate <= fin;
+              })) {
                 const startDate = new Date(shift.start * 1000);
                 const finishDate = new Date(shift.finish * 1000);
                 const diffMilliseconds = finishDate - startDate;
@@ -500,7 +506,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 totalHoras += totalMilliseconds / (1000 * 60 * 60);
               }
 
-              totalHoras = Math.round(totalHoras); // Redondear a la hora más cercana
 
               const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
               if (department) {
