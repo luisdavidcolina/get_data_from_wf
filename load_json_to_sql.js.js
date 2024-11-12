@@ -72,11 +72,16 @@ function cargarDatosDesdeJSON(ruta) {
 // Función principal que crea tablas e inserta datos en base a la estructura de los archivos JSON
 async function createTablesAndInsertData(pool) {
   
-  const transformedData = {
-    kpisByWeek: Object.entries(...cargarDatosDesdeJSON(rutaJsonTOTALIZADO)).flatMap(([key, values]) =>
-      values.map(item => ({ ...item, kpi: key }))
-    )
-  };
+  const datosTotalizado = cargarDatosDesdeJSON(rutaJsonTOTALIZADO) || {};
+
+
+    const transformedData = {
+      kpisByWeek: Object.entries(datosTotalizado).flatMap(([key, values]) =>
+        Array.isArray(values) 
+          ? values.map(item => ({ ...item, kpi: key })) 
+          : []
+      )
+    };
 
   const rawData = {
     ...transformedData,
