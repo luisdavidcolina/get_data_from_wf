@@ -29,21 +29,24 @@ function getSqlType(value) {
   if (typeof value === 'string') return 'NVARCHAR(MAX)';
   if (typeof value === 'number') return 'FLOAT';
   if (value instanceof Date) return 'NVARCHAR(MAX)';
-  return 'NVARCHAR(MAX)'; // tipo por defecto para cualquier otro valor
+  return 'NVARCHAR(MAX)';
 }
 
 // Función para crear una tabla SQL a partir de la estructura de un objeto
 async function createTableFromObject(pool, tableName, object) {
   const columns = Object.entries(object)
-    .map(([key, value]) => `${toSnakeCase(key)} ${getSqlType(value)}`)
+    .map(([key, value]) => `[${toSnakeCase(key)}] ${getSqlType(value)}`)
     .join(', ');
 
   const query = `
     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='${tableName}' AND xtype='U')
-    CREATE TABLE ${tableName} (
-      id INT IDENTITY(1,1) PRIMARY KEY,
-      ${columns}
-    )`;
+    BEGIN
+      CREATE TABLE [${tableName}] (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        ${columns}
+      )
+    END
+  `;
 
   await pool.request().query(query);
 }
@@ -51,14 +54,16 @@ async function createTableFromObject(pool, tableName, object) {
 // Función para insertar datos en la tabla correspondiente
 async function insertData(pool, tableName, dataArray) {
   for (const data of dataArray) {
-    const columns = Object.keys(data).map(key => toSnakeCase(key)).join(', ');
+    const columns = Object.keys(data).map(key => `[${toSnakeCase(key)}]`).join(', ');
     const values = Object.values(data).map(value => {
-      if (typeof value === 'string') return `'${value.replace(/'/g, "''")}'`; // Escapa comillas en strings
-      if (value instanceof Date) return `'${value.toISOString().split('T')[0]}'`; // Formato de fecha 'YYYY-MM-DD'
-      return value;
+      if (typeof value === 'string') return `'${value.replace(/'/g, "''")}'`;
+      if (value instanceof Date) return `'${value.toISOString().split('T')[0]}'`;
+      return value !== null && value !== undefined ? value : "NULL";
     }).join(', ');
 
-    const query = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`;
+    if (!columns || !values) continue;
+
+    const query = `INSERT INTO [${tableName}] (${columns}) VALUES (${values})`;
     await pool.request().query(query);
   }
 }
@@ -71,17 +76,15 @@ function cargarDatosDesdeJSON(ruta) {
 
 // Función principal que crea tablas e inserta datos en base a la estructura de los archivos JSON
 async function createTablesAndInsertData(pool) {
-  
   const datosTotalizado = cargarDatosDesdeJSON(rutaJsonTOTALIZADO) || {};
 
-
-    const transformedData = {
-      kpisByWeek: Object.entries(datosTotalizado).flatMap(([key, values]) =>
-        Array.isArray(values) 
-          ? values.map(item => ({ ...item, kpi: key })) 
-          : []
-      )
-    };
+  const transformedData = {
+    kpisByWeek: Object.entries(datosTotalizado).flatMap(([key, values]) =>
+      Array.isArray(values) 
+        ? values.map(item => ({ ...item, kpi: key })) 
+        : []
+    )
+  };
 
   const rawData = {
     ...transformedData,
@@ -91,12 +94,9 @@ async function createTablesAndInsertData(pool) {
   for (const [key, dataArray] of Object.entries(rawData)) {
     if (Array.isArray(dataArray) && dataArray.length > 0) {
       const tableName = toSnakeCase(key);
-      const sampleObject = dataArray[0]; // Usar el primer objeto para detectar las columnas
+      const sampleObject = dataArray[0];
 
-      // Crear la tabla si no existe
       await createTableFromObject(pool, tableName, sampleObject);
-
-      // Insertar datos en la tabla
       await insertData(pool, tableName, dataArray);
 
       console.log(`Datos insertados en la tabla ${tableName} exitosamente`);
@@ -108,7 +108,6 @@ async function main() {
   try {
     const pool = await sql.connect(sqlConfig);
 
-    // Crear tablas e insertar datos desde los JSON
     await createTablesAndInsertData(pool);
 
     console.log('Tablas creadas y datos insertados exitosamente en SQL Server');
