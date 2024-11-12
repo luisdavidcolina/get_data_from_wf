@@ -173,7 +173,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 week: lunes,
                 location_name: location.name,
                 location_id: location.id,
-                Total: 0
+                total: 0
               };
             }
             totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
@@ -183,12 +183,9 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (!totalRecommendedHoursNonCoverage[location.id]) {
               totalRecommendedHoursNonCoverage[location.id] = {
                 week: lunes,
-
-                department_name: department.name,
-                department_id: department.id,
                 location_name: location.name,
                 location_id: location.id,
-                Total: 0
+                total: 0
               };
             }
             totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
@@ -198,12 +195,9 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (!totalRecommendedHoursTraning[location.id]) {
               totalRecommendedHoursTraning[location.id] = {
                 week: lunes,
-
-                department_name: department.name,
-                department_id: department.id,
                 location_name: location.name,
                 location_id: location.id,
-                Total: 0
+                total: 0
               };
             }
             totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
@@ -418,7 +412,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
             kpisByWeek.actualTransactions.push({
               week: lunes,
-              datastream: datastream.name,
               location: location.name,
               location_id: location.id,
               total: totalChecks
@@ -438,7 +431,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             const totalSales = storeStats.reduce((sum, sale) => sum + sale.stat, 0);
             kpisByWeek.Items.push({
               week: lunes,
-              datastream: datastream.name,
               location: location.name,
               location_id: location.id,
               total: totalSales
@@ -515,7 +507,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                     week: lunes,
                     location: location.name,
                     location_id: location.id,
-                    totalHoras: totalHoras
+                    total: totalHoras
                   });
                 } else {
                   console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
