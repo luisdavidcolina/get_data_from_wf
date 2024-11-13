@@ -414,6 +414,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 location_id: location.id,
                 storestats_id: item.id
               }
+              delete newItem.id
               return newItem
             });
 
@@ -437,6 +438,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 location_id: location.id,
                 storestats_id: item.id
               }
+              delete newItem.id
               return newItem
             });
             rawData.Items.push(...actualSalesFlattened);
