@@ -13,9 +13,9 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-// Definir las fechas de inicio y fin
-const fechaInicio = '2024-09-02';
-const fechaFin = '2024-09-08';
+// Definir las fechas de inicio y fihn
+const fechaInicio = '2024-09-09';
+const fechaFin = '2024-09-15';
 
 async function obtenerDatos(endpoint, params = {}) {
   try {
