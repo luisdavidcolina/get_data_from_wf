@@ -14,8 +14,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fihn
-const fechaInicio = '2024-09-16';
-const fechaFin = '2024-09-22';
+const fechaInicio = '2024-09-02';
+const fechaFin = '2024-09-08';
 
 async function obtenerDatos(endpoint, params = {}) {
   try {
