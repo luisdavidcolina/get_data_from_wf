@@ -284,7 +284,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 date: convertEpochToDateTime(shift.start).slice(0, 10),
                 time: convertEpochToDateTime(shift.start).slice(11, 16),
                 week: lunes,
-                month: extractMonthInSpanish(convertEpochToDateTime(shift.time).slice(0, 10)),
+                month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
                 total
               };
 
@@ -491,7 +491,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 location_id: location.id,
                 storestats_id: item.id,
                 date: convertEpochToDateTime(item.time).slice(0, 10),
-                time: convertEpochToDateTime(shift.start).slice(11, 16),
+                time: convertEpochToDateTime(item.time).slice(11, 16),
                 week: lunes,
                 month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
@@ -549,7 +549,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                   break_length: breaks.reduce((total, b) => total + b.length, 0),
                   week: lunes,
                   time: convertEpochToDateTime(shift.start).slice(11, 16),
-                  month: extractMonthInSpanish(convertEpochToDateTime(shift.time).slice(0, 10)),
+                  month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
                   total
                 };
               });
