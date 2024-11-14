@@ -146,7 +146,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   const datastreamsJoins = await obtenerDatos('/datastreamjoins');
 
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
-    return { departament_id: department.id, name: department.name }
+    return { department_id: department.id, name: department.name }
   });
 
   rawData.locations= ubicaciones.map((location)=> {
