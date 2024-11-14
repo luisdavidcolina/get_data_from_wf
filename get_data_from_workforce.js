@@ -284,7 +284,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 date: convertEpochToDateTime(shift.start).slice(0, 10),
                 time: convertEpochToDateTime(shift.start).slice(11, 16),
                 week: lunes,
-                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10)),
+                month: extractMonthInSpanish(convertEpochToDateTime(shift.time).slice(0, 10)),
                 total
               };
 
@@ -434,6 +434,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             location_id: location.id,
             total: totalStats
           });
+          console.log(`Obtenidas las transacciones pronosticadas para la ubicación con ID: ${location.id}`)
         } else {
           console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
         }
@@ -508,9 +509,11 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             });
           }
 
+
         }
+        console.log(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
       }
-      console.error(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
+      
     }
 
 
@@ -546,7 +549,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                   break_length: breaks.reduce((total, b) => total + b.length, 0),
                   week: lunes,
                   time: convertEpochToDateTime(shift.start).slice(11, 16),
-                  month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10)),
+                  month: extractMonthInSpanish(convertEpochToDateTime(shift.time).slice(0, 10)),
                   total
                 };
               });
@@ -596,6 +599,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
               }
             }
           }
+          console.log(`Se obtuvieron las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
         } else {
           console.error(`No se pudieron obtener las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
         }
