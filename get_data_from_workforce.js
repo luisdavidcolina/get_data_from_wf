@@ -14,8 +14,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fihn
-const fechaInicio = '2024-09-02';
-const fechaFin = '2024-09-08';
+const fechaInicio = '2024-09-09';
+const fechaFin = '2024-09-15';
 
 async function obtenerDatos(endpoint, params = {}) {
   try {
@@ -103,9 +103,6 @@ function obtenerLunes(fecha) {
 async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
   const rawData = {
-    departments: [],
-    locations: [],
-    datastreams: [],
     minimumIdeal: [],
     scheduled: [],
     transactionForecast: [],
@@ -145,6 +142,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   const datastreams = await obtenerDatos('/datastreams');
   const datastreamsJoins = await obtenerDatos('/datastreamjoins');
 
+  /*
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name }
   });
@@ -156,7 +154,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   rawData.datastreams = datastreams.map((datastream)=> {
     return {datastream_id: datastream.id, name: datastream.name}
   })
-
+*/
 
   let totalRecommendedHoursCoverage = {};
   let totalRecommendedHoursNonCoverage = {};
