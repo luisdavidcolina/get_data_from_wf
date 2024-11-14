@@ -411,7 +411,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                   location_id: location.id,
                   predicted_storestats_id: item.id,
                   date: convertEpochToDateTime(item.time).slice(0, 10),
-                  time: convertEpochToDateTime(shift.start).slice(11, 16),
+                  time: convertEpochToDateTime(item.time).slice(11, 16),
                   week: lunes,
                   month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
                 }
@@ -465,7 +465,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 location_id: location.id,
                 storestats_id: item.id,
                 date: convertEpochToDateTime(item.time).slice(0, 10),
-                time: convertEpochToDateTime(shift.start).slice(11, 16),
+                time: convertEpochToDateTime(item.time).slice(11, 16),
                 week: lunes,
                 month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
