@@ -27,6 +27,31 @@ async function obtenerDatos(endpoint, params = {}) {
   }
 }
 
+function convertEpochToDateTime(epoch, GMT_zone = "-04:00") {
+  const [offsetSign, offsetHours, offsetMinutes] = GMT_zone.match(/([-+])(\d{2}):(\d{2})/).slice(1);
+  const offsetSeconds = (parseInt(offsetHours, 10) * 60 + parseInt(offsetMinutes, 10)) * 60;
+  const adjustedEpoch = epoch + (offsetSign === '-' ? -1 : 1) * offsetSeconds;
+
+  const dateObject = new Date(adjustedEpoch * 1000);
+  const year = dateObject.getUTCFullYear();
+  const month = (dateObject.getUTCMonth() + 1).toString().padStart(2, '0');
+  const day = dateObject.getUTCDate().toString().padStart(2, '0');
+  const hours = dateObject.getUTCHours().toString().padStart(2, '0');
+  const minutes = dateObject.getUTCMinutes().toString().padStart(2, '0');
+  const seconds = dateObject.getUTCSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${GMT_zone}`;
+}
+
+function extractMonthInSpanish(date) {
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+  const monthNumber = parseInt(date.split('-')[1], 10);
+  return months[monthNumber - 1];
+}
+
 function generateWeeklyRanges(inicio, fin) {
   const rangos = [];
   let fechaActual = new Date(inicio);
@@ -78,11 +103,14 @@ function obtenerLunes(fecha) {
 async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
   const rawData = {
+    departments: [],
+    locations: [],
+    datastreams: [],
     minimumIdeal: [],
     scheduled: [],
     transactionForecast: [],
     actualTransactions: [],
-    Items: [],
+    items: [],
     totalPunchesLaborHours: []
   };
 
@@ -95,7 +123,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     scheduledTraining: [],
     transactionForecast: [],
     actualTransactions: [],
-    Items: [],
+    items: [],
     totalPunchesLaborHours: []
   };
 
@@ -116,6 +144,18 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   const ubicaciones = await obtenerDatos('/locations');
   const datastreams = await obtenerDatos('/datastreams');
   const datastreamsJoins = await obtenerDatos('/datastreamjoins');
+
+  rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
+    return { departament_id: department.id, name: department.name }
+  });
+
+  rawData.locations= ubicaciones.map((location)=> {
+    return { location_id: location.id, name: location.name}
+  })
+
+  rawData.datastreams = datastreams.map((datastream)=> {
+    return {datastream_id: datastream.id, name: datastream.name}
+  })
 
 
   let totalRecommendedHoursCoverage = {};
@@ -157,7 +197,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             ...item,
             department_name: department.name,
             department_id: department.id,
-            location_name: location.name,
             location_id: location.id
           }));
           rawData.minimumIdeal.push(...recommendedHoursFlattened);
@@ -234,21 +273,31 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
                 return total + (breakFinish - breakStart) / (1000 * 60);
               }, 0);
 
+              const total = ((shift.finish - shift.start) / 60 - breakLength) / 60
+
               const newShift = {
                 ...shift,
-                department_name: department.name,
                 department_id: department.id,
-                location: location.name,
                 location_id: location.id,
-                break_start: shift.breaks.length > 1 ? shift.breaks[0].start : null,
-                break_finish: shift.breaks.length > 1 ? shift.breaks[0].finish : null,
                 break_length: breakLength,
-                roster_id: shift.id
+                roster_id: shift.id,
+                date: convertEpochToDateTime(shift.start).slice(0, 10),
+                time: convertEpochToDateTime(shift.start).slice(11, 16),
+                week: lunes,
+                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10)),
+                total
               };
 
               delete newShift.breaks
               delete newShift.time_zone
               delete newShift.id
+              delete newShift.automatic_break_length
+              delete newShift.creation_method
+              delete newShift.creation_platform
+              delete newShift.acceptance_status
+              delete newShift.last_acknowledged_at
+              delete newShift.needs_acceptance
+              delete newShift.utc_offset
               return newShift
             })
           );
@@ -359,9 +408,12 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
               const flattened = transaction.stats.filter(storeStat => storeStat.type === 'checks').map(item => {
                 let newItem = {
                   ...item,
-                  location_name: location.name,
                   location_id: location.id,
-                  predicted_storestats_id: item.id
+                  predicted_storestats_id: item.id,
+                  date: convertEpochToDateTime(item.time).slice(0, 10),
+                  time: convertEpochToDateTime(shift.start).slice(11, 16),
+                  week: lunes,
+                  month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
                 }
                 delete newItem.id
                 return newItem
@@ -379,7 +431,6 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
           // Agregar a kpisByWeek
           kpisByWeek.transactionForecast.push({
             week: lunes,
-            location: location.name,
             location_id: location.id,
             total: totalStats
           });
@@ -410,9 +461,12 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             const actualTransactionsFlattened = storeStats.map((item) => {
               let newItem = {
                 ...item,
-                location_name: location.name,
                 location_id: location.id,
-                storestats_id: item.id
+                storestats_id: item.id,
+                date: convertEpochToDateTime(item.time).slice(0, 10),
+                time: convertEpochToDateTime(shift.start).slice(11, 16),
+                week: lunes,
+                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
               delete newItem.id
               return newItem
@@ -424,30 +478,31 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
             kpisByWeek.actualTransactions.push({
               week: lunes,
-              location: location.name,
               location_id: location.id,
               total: totalChecks
             });
           }
 
           else if ((storeStats[0]) && (storeStats[0].type) && (storeStats[0].type === 'sales count')) {
-            const actualSalesFlattened =  storeStats.map((item) => {
+            const actualSalesFlattened = storeStats.map((item) => {
               let newItem = {
                 ...item,
-                location_name: location.name,
                 location_id: location.id,
-                storestats_id: item.id
+                storestats_id: item.id,
+                date: convertEpochToDateTime(item.time).slice(0, 10),
+                time: convertEpochToDateTime(shift.start).slice(11, 16),
+                week: lunes,
+                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
               delete newItem.id
               return newItem
             });
-            rawData.Items.push(...actualSalesFlattened);
+            rawData.items.push(...actualSalesFlattened);
 
 
             const totalSales = storeStats.reduce((sum, sale) => sum + sale.stat, 0);
-            kpisByWeek.Items.push({
+            kpisByWeek.items.push({
               week: lunes,
-              location: location.name,
               location_id: location.id,
               total: totalSales
             });
@@ -479,14 +534,20 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
                 return shiftDate >= inicio && shiftDate <= fin;
               }).map(shift => {
-                let  shift_id = shift.id
-                const { id, breaks, tag, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+                let shift_id = shift.id
+                const { id, break_finish, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+
+                const total = ((shift.finish - shift.start) / 60 - shift.break_length) / 60
+
                 return {
                   ...rest,
-                  location_name: location.name,
                   location_id: location.id,
                   shift_id,
-                  break_length: breaks.reduce((total, b) => total + b.length, 0)
+                  break_length: breaks.reduce((total, b) => total + b.length, 0),
+                  week: lunes,
+                  time: convertEpochToDateTime(shift.start).slice(11, 16),
+                  month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10)),
+                  total
                 };
               });
 
@@ -583,7 +644,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     return result;
   }
 
-  kpisByWeek.Items = aggregateByWeekAndLocation(kpisByWeek.Items)
+  kpisByWeek.items = aggregateByWeekAndLocation(kpisByWeek.items)
   kpisByWeek.actualTransactions = aggregateByWeekAndLocation(kpisByWeek.actualTransactions)
 
   return { kpisByWeek, rawData };
