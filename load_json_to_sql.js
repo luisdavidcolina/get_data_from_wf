@@ -106,7 +106,7 @@ async function createTablesAndInsertData(pool) {
   }
 }
 
-async function loadJosonToSql() {
+async function loadJsonToSql() {
   try {
     const pool = await sql.connect(sqlConfig);
 
@@ -120,9 +120,9 @@ async function loadJosonToSql() {
   }
 }
 
-if (require.loadJosonToSql === module) {
-  loadJosonToSql();
+if (require.loadJsonToSql === module) {
+  loadJsonToSql();
 }
 
-module.exports = { loadJosonToSql };
+module.exports = { loadJsonToSql };
 

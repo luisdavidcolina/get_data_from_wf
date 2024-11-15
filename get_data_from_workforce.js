@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const { loadJosonToSql} = require('./load_json_to_sql');
+const { loadJsonToSql} = require('./load_json_to_sql');
 
 const writeFile = util.promisify(fs.writeFile);
 const mkdir = util.promisify(fs.mkdir);
@@ -14,9 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-// Definir las fechas de inicio y fihn
-const fechaInicio = '2024-09-30';
-const fechaFin = '2024-10-06';
+const datestart = '2024-09-30';
+const datefinish= '2024-10-06';
 
 async function obtenerDatos(endpoint, params = {}) {
   try {
@@ -53,55 +52,48 @@ function extractMonthInSpanish(date) {
   return months[monthNumber - 1];
 }
 
-function generateWeeklyRanges(inicio, fin) {
-  const rangos = [];
-  let fechaActual = new Date(inicio);
-  const fechaFinal = new Date(fin);
+function generateWeeklyRanges(start, fin) {
+  const ranges = [];
+  let dateActual = new Date(start);
+  const dateFinal = new Date(fin);
 
-  while (fechaActual <= fechaFinal) {
-    const inicioSemana = new Date(fechaActual);
-    const finSemana = new Date(fechaActual.setDate(fechaActual.getDate() + 6));
+  while (dateActual <= dateFinal) {
+    const startweek = new Date(dateActual);
+    const finweek = new Date(dateActual.setDate(dateActual.getDate() + 6));
 
-    if (finSemana > fechaFinal) {
-      rangos.push({
-        inicio: inicioSemana.toISOString().split('T')[0],
-        fin: fechaFinal.toISOString().split('T')[0]
+    if (finweek > dateFinal) {
+      ranges.push({
+        start: startweek.toISOString().split('T')[0],
+        fin: dateFinal.toISOString().split('T')[0]
       });
     } else {
-      rangos.push({
-        inicio: inicioSemana.toISOString().split('T')[0],
-        fin: finSemana.toISOString().split('T')[0]
+      ranges.push({
+        start: startweek.toISOString().split('T')[0],
+        fin: finweek.toISOString().split('T')[0]
       });
     }
 
-    fechaActual.setDate(fechaActual.getDate() + 1);
+    dateActual.setDate(dateActual.getDate() + 1);
   }
 
-  return rangos;
+  return ranges;
 }
 
-function obtenerLunes(fecha) {
-  const date = new Date(fecha);
+function obtenerLunes(date) {
+  const date = new Date(date);
 
-  // Obtener la fecha actual en UTC para evitar problemas con zonas horarias
   date.setUTCHours(0, 0, 0, 0);
 
   const dayOfWeek = date.getUTCDay();
 
-  // Retroceder hasta el lunes
-  // Si es domingo (0), retrocedemos 6 días
-  // Si es lunes (1), retrocedemos 0 días
-  // Si es martes (2), retrocedemos 1 día
-  // etc...
   const diff = dayOfWeek === 0 ? -6 : -dayOfWeek + 1;
 
-  // Ajustar la fecha
   date.setUTCDate(date.getUTCDate() + diff);
 
   return date.toISOString().split('T')[0];
 }
 
-async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
+async function fetchMultipleWorkforceRequests(datestart, dateFin) {
 
   const rawData = {
     minimumIdeal: [],
@@ -125,7 +117,7 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     totalPunchesLaborHours: []
   };
 
-  const rangosSemanales = generateWeeklyRanges(fechaInicio, fechaFin);
+  const WeeklyRanges = generateWeeklyRanges(datestart, dateFin);
 
   let departamentos = await obtenerDatos('/departments');
 
@@ -166,95 +158,98 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
   const locationHoursTraining = {};
 
 
-  for (const rango of rangosSemanales) {
+  for (const range of WeeklyRanges) {
 
-    const lunes = obtenerLunes(rango.inicio);
+    const lunes = obtenerLunes(range.start);
 
-
-    // for (const department of departamentosRelevantesCompletosUnicos) {
-    //   const recommendedHours = await obtenerDatos('/recommended_hours', {
-    //     from_date: rango.inicio,
-    //     to_date: rango.fin,
-    //     department_id: department.id
-    //   });
-
-    //   function transformarHorasPorFecha(recommended_hours_by_date) {
-    //     return Object.entries(recommended_hours_by_date).map(([date, total]) => ({
-    //       date,
-    //       total
-    //     }));
-    //   }
+    const rutaJsonTOTALIZADO = path.join(__dirname, 'data', 'kpis_by_week.json');
+    const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
 
+    for (const department of departamentosRelevantesCompletosUnicos) {
+      const recommendedHours = await obtenerDatos('/recommended_hours', {
+        from_date: range.start,
+        to_date: range.fin,
+        department_id: department.id
+      });
+
+      function TransformHoursFordate(recommended_hours_by_date) {
+        return Object.entries(recommended_hours_by_date).map(([date, total]) => ({
+          date,
+          total
+        }));
+      }
 
 
-    //   if (recommendedHours) {
-    //     const location = ubicaciones.find(loc => loc.id === department.location_id);
-    //     if (location) {
-
-    //       const recommendedHoursFlattened = transformarHorasPorFecha(recommendedHours.recommended_hours_by_date).map((item) => ({
-    //         ...item,
-    //         department_name: department.name,
-    //         department_id: department.id,
-    //         location_id: location.id
-    //       }));
-    //       rawData.minimumIdeal.push(...recommendedHoursFlattened);
 
 
-    //       if (department.name === 'Baristas DT' ||
-    //         department.name === 'Baristas' ||
-    //         department.name === 'Supervisores' ||
-    //         department.name === 'Supervisores DT') {
+      if (recommendedHours) {
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
 
-    //         if (!totalRecommendedHoursCoverage[location.id]) {
-    //           totalRecommendedHoursCoverage[location.id] = {
-    //             week: lunes,
-    //             location: location.name,
-    //             location_id: location.id,
-    //             total: 0
-    //           };
-    //         }
-    //         totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
+          const recommendedHoursFlattened = TransformHoursFordate(recommendedHours.recommended_hours_by_date).map((item) => ({
+            ...item,
+            department_name: department.name,
+            department_id: department.id,
+            location_id: location.id
+          }));
+          rawData.minimumIdeal.push(...recommendedHoursFlattened);
 
 
-    //       } else if (department.name === 'Non Coverage') {
-    //         if (!totalRecommendedHoursNonCoverage[location.id]) {
-    //           totalRecommendedHoursNonCoverage[location.id] = {
-    //             week: lunes,
-    //             location: location.name,
-    //             location_id: location.id,
-    //             total: 0
-    //           };
-    //         }
-    //         totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
+          if (department.name === 'Baristas DT' ||
+            department.name === 'Baristas' ||
+            department.name === 'Supervisores' ||
+            department.name === 'Supervisores DT') {
+
+            if (!totalRecommendedHoursCoverage[location.id]) {
+              totalRecommendedHoursCoverage[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            totalRecommendedHoursCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
 
-    //       } else if (department.name === 'Training') {
-    //         if (!totalRecommendedHoursTraning[location.id]) {
-    //           totalRecommendedHoursTraning[location.id] = {
-    //             week: lunes,
-    //             location: location.name,
-    //             location_id: location.id,
-    //             total: 0
-    //           };
-    //         }
-    //         totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-    //       }
+          } else if (department.name === 'Non Coverage') {
+            if (!totalRecommendedHoursNonCoverage[location.id]) {
+              totalRecommendedHoursNonCoverage[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            totalRecommendedHoursNonCoverage[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
 
-    //       console.log(`Obtenidas las horas recomendadas para el departamento con ID: ${department.id}`)
+          } else if (department.name === 'Training') {
+            if (!totalRecommendedHoursTraning[location.id]) {
+              totalRecommendedHoursTraning[location.id] = {
+                week: lunes,
+                location: location.name,
+                location_id: location.id,
+                total: 0
+              };
+            }
+            totalRecommendedHoursTraning[location.id].Total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
 
-    //     } else {
-    //       console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-    //     }
-    //   } else {
-    //     console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
-    //   }
-    // }
+          }
 
 
-    const scheduled = await obtenerDatos(`/rosters/on/${rango.inicio}`, {
+          console.log(`Obtenidas las horas recomendadas para el departamento con ID: ${department.id}`)
+
+        } else {
+          console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
+        }
+      } else {
+        console.error(`No se pudieron obtener las horas recomendadas para el departamento con ID: ${department.id} o el resultado no es un array`);
+      }
+    }
+
+
+    const scheduled = await obtenerDatos(`/rosters/on/${range.start}`, {
       show_costs: false
     });
 
@@ -389,156 +384,149 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     }
 
 
-    // for (const location of ubicaciones) {
-    //   try {
-    //     const toDate = new Date(rango.fin);
-    //     toDate.setDate(toDate.getDate() + 1);
-    //     const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
-    //       from: rango.inicio,
-    //       to: toDate.toISOString().split('T')[0]
-    //     });
+    for (const location of ubicaciones) {
+      try {
+        const toDate = new Date(range.fin);
+        toDate.setDate(toDate.getDate() + 1);
+        const predictedTransactions = await obtenerDatos(`/predicted_storestats/for_location/${location.id}`, {
+          from: range.start,
+          to: toDate.toISOString().split('T')[0]
+        });
     
-    //     if (Array.isArray(predictedTransactions)) {
-    //       let totalStats = 0;
-    //       const allStats = [];
+        if (Array.isArray(predictedTransactions)) {
+          let totalStats = 0;
+          const allStats = [];
     
-    //       // Procesar cada array de stats
-    //       for (const transaction of predictedTransactions) {
-    //         if (Array.isArray(transaction.stats)) {
-    //           // Filtrar los stats que coincidan con rango.fin
-    //           const filteredStats = transaction.stats.filter(stat => {
-    //             const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
-    //             const inicioDate = new Date(rango.inicio);
-    //             const finDate = new Date(rango.fin);
-    //             return statDate >= inicioDate && statDate <= finDate;
-    //           });
+          for (const transaction of predictedTransactions) {
+            if (Array.isArray(transaction.stats)) {
+              const filteredStats = transaction.stats.filter(stat => {
+                const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
+                const startDate = new Date(range.start);
+                const finDate = new Date(range.fin);
+                return statDate >= startDate && statDate <= finDate;
+              });
     
-    //           // Agregar a raw data
-    //           const flattened = filteredStats.filter(storeStat => storeStat.type === 'checks').map(item => {
-    //             let newItem = {
-    //               ...item,
-    //               location_id: location.id,
-    //               predicted_storestats_id: item.id,
-    //               date: convertEpochToDateTime(item.time).slice(0, 10),
-    //               time: convertEpochToDateTime(item.time).slice(11, 16),
-    //               week: lunes,
-    //               month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
-    //             }
-    //             delete newItem.id;
-    //             return newItem;
-    //           });
-    //           allStats.push(...flattened);
+              const flattened = filteredStats.filter(storeStat => storeStat.type === 'checks').map(item => {
+                let newItem = {
+                  ...item,
+                  location_id: location.id,
+                  predicted_storestats_id: item.id,
+                  date: convertEpochToDateTime(item.time).slice(0, 10),
+                  time: convertEpochToDateTime(item.time).slice(11, 16),
+                  week: lunes,
+                  month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
+                }
+                delete newItem.id;
+                return newItem;
+              });
+              allStats.push(...flattened);
     
-    //           // Sumar al total
-    //           totalStats += filteredStats.reduce((sum, stat) => sum + (stat.stat || 0), 0);
-    //         }
-    //       }
+              totalStats += filteredStats.reduce((sum, stat) => sum + (stat.stat || 0), 0);
+            }
+          }
     
-    //       // Agregar al raw data
-    //       rawData.transactionForecast.push(...allStats);
+          rawData.transactionForecast.push(...allStats);
     
-    //       // Agregar a kpisByWeek
-    //       kpisByWeek.transactionForecast.push({
-    //         week: lunes,
-    //         location_id: location.id,
-    //         total: totalStats
-    //       });
-    //       console.log(`Obtenidas las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
-    //     } else {
-    //       console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
-    //     }
-    //   } catch (error) {
-    //     console.error(`Error al obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
-    //     console.error(error);
-    //   }
-    // }
+          kpisByWeek.transactionForecast.push({
+            week: lunes,
+            location_id: location.id,
+            total: totalStats
+          });
+          console.log(`Obtenidas las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+        } else {
+          console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+        }
+      } catch (error) {
+        console.error(`Error al obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
+        console.error(error);
+      }
+    }
 
 
 
-    // for (const datastream of datastreams) {
-    //   const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
-    //   if (datastreamJoin) {
-    //     const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
+    for (const datastream of datastreams) {
+      const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
+      if (datastreamJoin) {
+        const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
         
-    //     const toDate = new Date(rango.fin);
-    //     toDate.setDate(toDate.getDate() + 1);
-    //     const storeStats = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
-    //       from: rango.inicio,
-    //       to: toDate.toISOString().split('T')[0]
-    //     });
+        const toDate = new Date(range.fin);
+        toDate.setDate(toDate.getDate() + 1);
+        const storeStats = await obtenerDatos(`/storestats/for_datastream/${datastream.id}`, {
+          from: range.start,
+          to: toDate.toISOString().split('T')[0]
+        });
 
-    //     if (storeStats) {
+        if (storeStats) {
 
-    //       // Filtrar los stats que coincidan con rango.fin
-    //       const filteredStats = storeStats.filter(stat => {
-    //         const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
-    //         const inicioDate = new Date(rango.inicio);
-    //         const finDate = new Date(rango.fin);
-    //         return statDate >= inicioDate && statDate <= finDate;
-    //       });
+          const filteredStats = storeStats.filter(stat => {
+            const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
+            const startDate = new Date(range.start);
+            const finDate = new Date(range.fin);
+            return statDate >= startDate && statDate <= finDate;
+          });
 
-    //       if ((filteredStats[0]) && (filteredStats[0].type) && (filteredStats[0].type === 'checks')) {
+          if ((filteredStats[0]) && (filteredStats[0].type) && (filteredStats[0].type === 'checks')) {
 
-    //         const actualTransactionsFlattened = filteredStats.map((item) => {
-    //           let newItem = {
-    //             ...item,
-    //             location_id: location.id,
-    //             storestats_id: item.id,
-    //             date: convertEpochToDateTime(item.time).slice(0, 10),
-    //             time: convertEpochToDateTime(item.time).slice(11, 16),
-    //             week: lunes,
-    //             month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
-    //           }
-    //           delete newItem.id
-    //           return newItem
-    //         });
+            const actualTransactionsFlattened = filteredStats.map((item) => {
+              let newItem = {
+                ...item,
+                location_id: location.id,
+                storestats_id: item.id,
+                date: convertEpochToDateTime(item.time).slice(0, 10),
+                time: convertEpochToDateTime(item.time).slice(11, 16),
+                week: lunes,
+                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
+              }
+              delete newItem.id
+              return newItem
+            });
 
-    //         rawData.actualTransactions.push(...actualTransactionsFlattened);
+            rawData.actualTransactions.push(...actualTransactionsFlattened);
 
-    //         const totalChecks = filteredStats.reduce((sum, transaction) => sum + transaction.stat, 0);
+            const totalChecks = filteredStats.reduce((sum, transaction) => sum + transaction.stat, 0);
 
-    //         kpisByWeek.actualTransactions.push({
-    //           week: lunes,
-    //           location_id: location.id,
-    //           total: totalChecks
-    //         });
-    //       }
+            kpisByWeek.actualTransactions.push({
+              week: lunes,
+              location_id: location.id,
+              total: totalChecks
+            });
+          }
 
-    //       else if ((filteredStats[0]) && (filteredStats[0].type) && (filteredStats[0].type === 'sales count')) {
-    //         const actualSalesFlattened = filteredStats.map((item) => {
-    //           let newItem = {
-    //             ...item,
-    //             location_id: location.id,
-    //             storestats_id: item.id,
-    //             date: convertEpochToDateTime(item.time).slice(0, 10),
-    //             time: convertEpochToDateTime(item.time).slice(11, 16),
-    //             week: lunes,
-    //             month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
-    //           }
-    //           delete newItem.id
-    //           return newItem
-    //         });
-    //         rawData.items.push(...actualSalesFlattened);
-
-
-    //         const totalSales = filteredStats.reduce((sum, sale) => sum + sale.stat, 0);
-    //         kpisByWeek.items.push({
-    //           week: lunes,
-    //           location_id: location.id,
-    //           total: totalSales
-    //         });
-    //       }
+          else if ((filteredStats[0]) && (filteredStats[0].type) && (filteredStats[0].type === 'sales count')) {
+            const actualSalesFlattened = filteredStats.map((item) => {
+              let newItem = {
+                ...item,
+                location_id: location.id,
+                storestats_id: item.id,
+                date: convertEpochToDateTime(item.time).slice(0, 10),
+                time: convertEpochToDateTime(item.time).slice(11, 16),
+                week: lunes,
+                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
+              }
+              delete newItem.id
+              return newItem
+            });
+            rawData.items.push(...actualSalesFlattened);
 
 
-    //     }
-    //     console.log(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
-    //   }
+            const totalSales = filteredStats.reduce((sum, sale) => sum + sale.stat, 0);
+            kpisByWeek.items.push({
+              week: lunes,
+              location_id: location.id,
+              total: totalSales
+            });
+          }
+
+
+        }
+        console.log(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
+      }
       
-    // }
+    }
 
 
 
-    const totalWeeklyWorkedHours = await obtenerDatos(`/timesheets/on/${rango.inicio}`, {
+    const totalWeeklyWorkedHours = await obtenerDatos(`/timesheets/on/${range.start}`, {
       show_costs: false,
       show_award_interpretation: false
     });
@@ -552,10 +540,10 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
             if (location) {
               const shiftsFlattened = hours.shifts.filter(shift => {
                 const shiftDate = new Date(shift.date);
-                const inicio = new Date(rango.inicio);
-                const fin = new Date(rango.fin);
+                const start = new Date(range.start);
+                const finish= new Date(range.fin);
 
-                return shiftDate >= inicio && shiftDate <= fin;
+                return shiftDate >= start && shiftDate <= fin;
               }).map(shift => {
                 let shift_id = shift.id
                 const { id, break_finish, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
@@ -588,10 +576,10 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
               for (const shift of hours.shifts.filter(shift => {
                 const shiftDate = new Date(shift.date);
-                const inicio = new Date(rango.inicio);
-                const fin = new Date(rango.fin);
+                const start = new Date(range.start);
+                const finish= new Date(range.fin);
 
-                return shiftDate >= inicio && shiftDate <= fin;
+                return shiftDate >= start && shiftDate <= fin;
               })) {
                 const startDate = new Date(shift.start * 1000);
                 const finishDate = new Date(shift.finish * 1000);
@@ -620,9 +608,9 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
               }
             }
           }
-          console.log(`Se obtuvieron las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
+          console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.fin}`);
         } else {
-          console.error(`No se pudieron obtener las horas laborales semanales registradas para el rango: ${rango.inicio} - ${rango.fin}`);
+          console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
         }
 
 
@@ -636,10 +624,30 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     kpisByWeek.minimumIdealNonCoverage.push(...Object.values(totalRecommendedHoursNonCoverage));
     kpisByWeek.minimumIdealTraining.push(...Object.values(totalRecommendedHoursTraning));
 
-    // Convertir los objetos locationHours en arrays y agregarlos a kpisByWeek
     kpisByWeek.scheduledCoverage = Object.values(locationHoursCoverage);
     kpisByWeek.scheduledNonCoverage = Object.values(locationHoursNonCoverage);
     kpisByWeek.scheduledTraining = Object.values(locationHoursTraining);
+
+    try {
+      await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
+      await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
+
+      await writeFile(rutaJsonTOTALIZADO, JSON.stringify(kpisByWeek, null, 2));
+      await writeFile(rutaJsonCOMPLETO, JSON.stringify(rawData, null, 2));
+
+      console.log(`Datos guardados para el range ${range.start} en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
+    } catch (error) {
+      console.error('Error al guardar los JSON:', error);
+    }
+
+    try {
+      await loadJsonToSql();
+      console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+    } catch (error) {
+      console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+    }
+
+    console.log('Fin del proceso para el range:', range);
 
   }
 
@@ -647,16 +655,13 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
     const result = [];
 
     data.forEach(item => {
-      // Busca si ya existe un objeto en `result` con la misma week y location_id
       const existingEntry = result.find(entry =>
         entry.week === item.week && entry.location_id === item.location_id
       );
 
       if (existingEntry) {
-        // Si ya existe, suma el total
         existingEntry.total += item.total;
       } else {
-        // Si no existe, agrega una nueva entrada con los datos del objeto actual
         result.push({
           week: item.week,
           location: item.location,
@@ -678,33 +683,14 @@ async function fetchMultipleWorkforceRequests(fechaInicio, fechaFin) {
 
 async function main() {
 
-  console.log(`Obteniendo datos desde ${fechaInicio} hasta ${fechaFin}...`);
+  console.log(`Obteniendo datos desde ${datestart} hasta ${dateFin}...`);
 
-  const rutaActual = path.dirname(__filename);
-  const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'kpis_by_week.json');
-  const rutaJsonTOTALIZADOPorDia = path.join(rutaActual, 'data', 'kpis_by_date.json');
-  const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'raw_data.json');
+
 
   try {
-    await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
-    await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
-
-    const datosObtenidos = await fetchMultipleWorkforceRequests(fechaInicio, fechaFin);
-
-    const jsonDatosTOTALIZADOS = JSON.stringify(datosObtenidos.kpisByWeek || {}, null, 2);
-    const jsonDatosCOMPLETOS = JSON.stringify(datosObtenidos.rawData || [], null, 2);
-
-    await writeFile(rutaJsonTOTALIZADO, jsonDatosTOTALIZADOS);
-    await writeFile(rutaJsonCOMPLETO, jsonDatosCOMPLETOS);
-
-    console.log(`Datos guardados exitosamente en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
-
-    // try {await loadJosonToSql();} 
-    // catch (error) {console.error('Error en la carga de datos a SQL:', error);}
-    // finally { 
-    //   console.log('Fin del proceso');
-    // }
     
+    await fetchMultipleWorkforceRequests(datestart, dateFin);
+
 
   } catch (error) {
     console.error('Error al obtener o guardar los datos:', error);
