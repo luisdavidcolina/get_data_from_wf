@@ -2,6 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const { loadJosonToSql} = require('./load_json_to_sql');
 
 const writeFile = util.promisify(fs.writeFile);
 const mkdir = util.promisify(fs.mkdir);
@@ -14,8 +15,8 @@ const headers = {
 };
 
 // Definir las fechas de inicio y fihn
-const fechaInicio = '2024-09-16';
-const fechaFin = '2024-09-22';
+const fechaInicio = '2024-09-23';
+const fechaFin = '2024-09-29';
 
 async function obtenerDatos(endpoint, params = {}) {
   try {
@@ -676,6 +677,12 @@ async function main() {
 
     console.log(`Datos guardados exitosamente en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
 
+    try {await loadJosonToSql();} 
+    catch (error) {console.error('Error en la carga de datos a SQL:', error);}
+    finally { 
+      console.log('Fin del proceso');
+    }
+    
 
   } catch (error) {
     console.error('Error al obtener o guardar los datos:', error);
@@ -683,3 +690,4 @@ async function main() {
 }
 
 main();
+
