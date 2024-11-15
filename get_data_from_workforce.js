@@ -28,7 +28,7 @@ async function obtenerDatos(endpoint, params = {}) {
 }
 
 function convertEpochToDateTime(epoch, GMT_zone = "-04:00") {
-  const [offsetSi gn, offsetHours, offsetMinutes] = GMT_zone.match(/([-+])(\d{2}):(\d{2})/).slice(1);
+  const [offsetSign, offsetHours, offsetMinutes] = GMT_zone.match(/([-+])(\d{2}):(\d{2})/).slice(1);
   const offsetSeconds = (parseInt(offsetHours, 10) * 60 + parseInt(offsetMinutes, 10)) * 60;
   const adjustedEpoch = epoch + (offsetSign === '-' ? -1 : 1) * offsetSeconds;
 
