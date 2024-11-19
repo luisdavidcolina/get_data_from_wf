@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-30';
-const datefinish= '2024-10-06';
+const datestart = '2024-09-02';
+const datefinish= '2024-09-08';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -904,12 +904,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error('Error al guardar los JSON:', error);
     }
 
-    // try {
-    //   await loadJsonToSql();
-    //   console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-    // } catch (error) {
-    //   console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-    // }
+    try {
+      await loadJsonToSql();
+      console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+    } catch (error) {
+      console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+    }
 
     console.log('Fin del proceso para el range:', range);
 
