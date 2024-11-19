@@ -118,6 +118,9 @@ function aggregateByWeekAndLocation(data) {
 async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   const rawData = {
+    locations: [],
+    departments: [],
+    datastreams: [],
     minimumIdeal: [],
     scheduled: [],
     transactionForecast: [],
@@ -168,7 +171,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
 
-  /*
+  
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name }
   });
@@ -180,7 +183,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   rawData.datastreams = datastreams.map((datastream)=> {
     return {datastream_id: datastream.id, name: datastream.name}
   })
-*/
+
 
   let totalRecommendedHoursCoverage = {};
   let totalRecommendedHoursNonCoverage = {};
@@ -198,7 +201,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     const rutaJsonTOTALIZADO = path.join(__dirname, 'data', 'kpis_by_week.json');
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
-
+    /*
     for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
         from_date: range.start,
@@ -212,6 +215,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           total
         }));
       }
+
 
 
 
@@ -562,12 +566,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     });
 
     if (Array.isArray(totalWeeklyWorkedHours)) {
+      
       for (const hours of totalWeeklyWorkedHours) {
         if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
           const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
           if (department) {
             const location = ubicaciones.find(loc => loc.id === department.location_id);
             if (location) {
+              console.log(hours.shifts.length)
               const shiftsFlattened = hours.shifts.filter(shift => {
                 const shiftDate = new Date(shift.date);
                 const start = new Date(range.start);
@@ -603,6 +609,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           for (const hours of totalWeeklyWorkedHours) {
             if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
 
+             
 
               for (const shift of hours.shifts.filter(shift => {
                 const shiftDate = new Date(shift.date);
@@ -898,7 +905,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     console.log(`TPLH: ${JSON.stringify(kpisByWeek.TPLH, null, 2)}`);
     console.log(`IPLH: ${JSON.stringify(kpisByWeek.IPLH, null, 2)}`);
 
-
+*/
     try {
 
       await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
