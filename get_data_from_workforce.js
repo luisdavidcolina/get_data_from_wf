@@ -93,6 +93,28 @@ function getMonday(dateStartOfRange) {
   return date.toISOString().split('T')[0];
 }
 
+function aggregateByWeekAndLocation(data) {
+  const result = [];
+
+  data.forEach(item => {
+    const existingEntry = result.find(entry =>
+      entry.week === item.week && entry.location_id === item.location_id
+    );
+
+    if (existingEntry) {
+      existingEntry.total += item.total;
+    } else {
+      result.push({
+        week: item.week,
+        location_id: item.location_id,
+        total: item.total
+      });
+    }
+  });
+
+  return result;
+}
+
 async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   const rawData = {
@@ -636,6 +658,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     kpisByWeek.scheduledTraining = Object.values(locationHoursTraining);  
 
      
+    kpisByWeek.items = aggregateByWeekAndLocation(kpisByWeek.items)
+    kpisByWeek.actualTransactions = aggregateByWeekAndLocation(kpisByWeek.actualTransactions)
     
 
     // Agrupar los datos por tienda para Coverage
@@ -654,6 +678,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       acc[item.location_id].total += item.total;
       return acc;
     }, {});
+
 
     // Calcular la variación para cada tienda en Coverage
     Object.keys(groupedScheduledCoverage).forEach(location_id => {
@@ -875,6 +900,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
 
     try {
+
       await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
       await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
 
@@ -897,32 +923,10 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   }
 
-  function aggregateByWeekAndLocation(data) {
-    const result = [];
+  
 
-    data.forEach(item => {
-      const existingEntry = result.find(entry =>
-        entry.week === item.week && entry.location_id === item.location_id
-      );
+ 
 
-      if (existingEntry) {
-        existingEntry.total += item.total;
-      } else {
-        result.push({
-          week: item.week,
-          location_id: item.location_id,
-          total: item.total
-        });
-      }
-    });
-
-    return result;
-  }
-
-  kpisByWeek.items = aggregateByWeekAndLocation(kpisByWeek.items)
-  kpisByWeek.actualTransactions = aggregateByWeekAndLocation(kpisByWeek.actualTransactions)
-
-  return { kpisByWeek, rawData };
 }
 
 
