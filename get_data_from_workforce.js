@@ -177,7 +177,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
 
-    for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
+    for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
         from_date: range.start,
         to_date: range.finish,
@@ -215,7 +215,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!totalRecommendedHoursCoverage[location.id]) {
               totalRecommendedHoursCoverage[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -228,7 +227,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!totalRecommendedHoursNonCoverage[location.id]) {
               totalRecommendedHoursNonCoverage[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -240,7 +238,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!totalRecommendedHoursTraning[location.id]) {
               totalRecommendedHoursTraning[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -266,7 +263,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     });
 
 
-    for (const department of departamentosRelevantesCompletosUnicos.slice(0, 15)) {
+    for (const department of departamentosRelevantesCompletosUnicos) {
 
       if (scheduled) {
         const location = ubicaciones.find(loc => loc.id === department.location_id);
@@ -331,7 +328,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!locationHoursCoverage[location.id]) {
               locationHoursCoverage[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -356,7 +352,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!locationHoursNonCoverage[location.id]) {
               locationHoursNonCoverage[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -381,7 +376,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (!locationHoursTraining[location.id]) {
               locationHoursTraining[location.id] = {
                 week: monday,
-                location: location.name,
                 location_id: location.id,
                 total: 0
               };
@@ -398,7 +392,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     }
 
 
-    for (const location of ubicaciones.slice(0, 15)) {
+    for (const location of ubicaciones) {
       try {
         const toDate = new Date(range.finish);
         toDate.setDate(toDate.getDate() + 1);
@@ -411,7 +405,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           let totalStats = 0;
           const allStats = [];
     
-          for (const transaction of predictedTransactions.slice(0, 15)) {
+          for (const transaction of predictedTransactions) {
             if (Array.isArray(transaction.stats)) {
               const filteredStats = transaction.stats.filter(stat => {
                 const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
@@ -458,7 +452,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
 
 
-    for (const datastream of datastreams.slice(0, 15)) {
+    for (const datastream of datastreams) {
       const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
       if (datastreamJoin) {
         const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
@@ -546,7 +540,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     });
 
     if (Array.isArray(totalWeeklyWorkedHours)) {
-      for (const hours of totalWeeklyWorkedHours.slice(0, 15)) {
+      for (const hours of totalWeeklyWorkedHours) {
         if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
           const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
           if (department) {
@@ -610,7 +604,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 if (location) {
                   kpisByWeek.totalPunchesLaborHours.push({
                     week: monday,
-                    location: location.name,
                     location_id: location.id,
                     total: totalHoras
                   });
@@ -671,9 +664,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         const variance = (scheduled.total / ideal.total) - 1;
         kpisByWeek.varianceToIdealCoverage.push({
           week: monday,
-          location: scheduled.location,
           location_id: scheduled.location_id,
-          varianceToIdealCoverage: variance
+          total: variance ?? 0
         });
       }
     });
@@ -704,9 +696,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         const variance = (scheduled.total / ideal.total) - 1;
         kpisByWeek.varianceToIdealNonCoverage.push({
           week: monday,
-          location: scheduled.location,
           location_id: scheduled.location_id,
-          varianceToIdealNonCoverage: variance
+          total: variance ?? 0
         });
       }
     });
@@ -737,9 +728,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         const variance = (scheduled.total / ideal.total) - 1;
         kpisByWeek.varianceToIdealTraining.push({
           week: monday,
-          location: scheduled.location,
           location_id: scheduled.location_id,
-          varianceToIdealTraining: variance
+          total: variance   ?? 0
         });
       }
     });
@@ -765,32 +755,28 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
       kpisByWeek.totalIdealWeeklyLaborHours.push({
         week: monday,
-        location: scheduledCoverage.location,
         location_id: location_id,
         total: totalIdealWeeklyLaborHours
       });
 
       kpisByWeek.totalScheduledWeeklyLaborHours.push({
         week: monday,
-        location: scheduledCoverage.location,
         location_id: location_id,
         total: totalScheduledWeeklyLaborHours
       });
 
       kpisByWeek.totalVariancesToIdealSummations.push({
         week: monday,
-        location: scheduledCoverage.location,
         location_id: location_id,
-        variance: totalVarianceToIdeal
+        total: totalVarianceToIdeal
       });
 
       // Calcular nonCoveragePorcentage
       const nonCoveragePorcentage = (minimumIdealNonCoverage.total + minimumIdealTraining.total) / totalIdealWeeklyLaborHours;
       kpisByWeek.nonCoveragePorcentage.push({
         week: monday,
-        location: scheduledCoverage.location,
         location_id: location_id,
-        nonCoveragePorcentage: nonCoveragePorcentage
+        total: nonCoveragePorcentage ?? 0
       });
     });
 
@@ -820,9 +806,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         const accuracy = forecast.total / actual.total;
         kpisByWeek.forecastAcuraccy.push({
           week: monday,
-          location: forecast.location,
           location_id: forecast.location_id,
-          forecastAcuraccy: accuracy
+          total: accuracy ?? 0
         });
       }
     });
@@ -845,9 +830,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         const variance = (punches.total / ideal.total) - 1;
         kpisByWeek.totalVarianceToIdealLaborHours.push({
           week: monday,
-          location: punches.location,
           location_id: punches.location_id,
-          variance: variance
+          total: variance ?? 0
         });
       }
     });
@@ -868,16 +852,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
         kpisByWeek.TPLH.push({
           week: monday,
-          location: actualTransactions.location,
           location_id: location_id,
-          tplh: tplh
+          total: tplh ?? 0
         });
 
         kpisByWeek.IPLH.push({
           week: monday,
-          location: actualTransactions.location,
           location_id: location_id,
-          iplh: iplh
+          total: iplh  ?? 0
         });
       }
     });
@@ -928,7 +910,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       } else {
         result.push({
           week: item.week,
-          location: item.location,
           location_id: item.location_id,
           total: item.total
         });
