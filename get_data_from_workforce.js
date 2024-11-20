@@ -558,104 +558,77 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       
     }
 
+*/
 
+const totalWeeklyWorkedHours = await getDatos(`/timesheets/on/${range.start}`, {
+  show_costs: false,
+  show_award_interpretation: false
+});
 
-    const totalWeeklyWorkedHours = await getDatos(`/timesheets/on/${range.start}`, {
-      show_costs: false,
-      show_award_interpretation: false
-    });
+if (Array.isArray(totalWeeklyWorkedHours)) {
+  const totalHorasPorTienda = {};
 
-    if (Array.isArray(totalWeeklyWorkedHours)) {
-      
-      for (const hours of totalWeeklyWorkedHours) {
-        if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
-          const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
-          if (department) {
-            const location = ubicaciones.find(loc => loc.id === department.location_id);
-            if (location) {
-              console.log(hours.shifts.length)
-              const shiftsFlattened = hours.shifts.filter(shift => {
-                const shiftDate = new Date(shift.date);
-                const start = new Date(range.start);
-                const finish= new Date(range.finish);
-
-                return shiftDate >= start && shiftDate <= finish;
-              }).map(shift => {
-                let shift_id = shift.id
-                const { id, break_finish, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
-
-                const total = ((shift.finish - shift.start) / 60 - shift.break_length) / 60
-
-                return {
-                  ...rest,
-                  location_id: location.id,
-                  shift_id,
-                  break_length: breaks.reduce((total, b) => total + b.length, 0),
-                  week: monday,
-                  time_start: convertEpochToDateTime(shift.start).slice(11, 16),
-                  time_finish: convertEpochToDateTime(shift.finish).slice(11, 16),
-                  month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
-                  total
-                };
-              });
-
-              rawData.totalPunchesLaborHours.push(...shiftsFlattened);
-            }
+  for (const hours of totalWeeklyWorkedHours) {
+    if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
+      const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
+      if (department) {
+        const location = ubicaciones.find(loc => loc.id === department.location_id);
+        if (location) {
+          if (!totalHorasPorTienda[location.id]) {
+            totalHorasPorTienda[location.id] = 0;
           }
+
+          const shiftsFlattened = hours.shifts.filter(shift => {
+            const shiftDate = new Date(shift.date);
+            const start = new Date(range.start);
+            const finish = new Date(range.finish);
+
+            return shiftDate >= start && shiftDate <= finish;
+          }).map(shift => {
+            let shift_id = shift.id;
+            const { id, break_finish, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+
+            const total = ((shift.finish - shift.start) / 60 - shift.break_length) / 60;
+            totalHorasPorTienda[location.id] += total;
+
+            return {
+              ...rest,
+              location_id: location.id,
+              shift_id,
+              break_length: breaks.reduce((total, b) => total + b.length, 0),
+              week: monday,
+              time_start: convertEpochToDateTime(shift.start).slice(11, 16),
+              time_finish: convertEpochToDateTime(shift.finish).slice(11, 16),
+              month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
+              total
+            };
+          });
+
+          rawData.totalPunchesLaborHours.push(...shiftsFlattened);
         }
-
-        if (Array.isArray(totalWeeklyWorkedHours)) {
-          let totalHoras = 0;
-          for (const hours of totalWeeklyWorkedHours) {
-            if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
-
-             
-
-              for (const shift of hours.shifts.filter(shift => {
-                const shiftDate = new Date(shift.date);
-                const start = new Date(range.start);
-                const finish= new Date(range.finish);
-
-                return shiftDate >= start && shiftDate <= finish;
-              })) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.break_length * 60 * 1000;
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-
-
-              const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
-              if (department) {
-                const location = ubicaciones.find(loc => loc.id === department.location_id);
-                if (location) {
-                  kpisByWeek.totalPunchesLaborHours.push({
-                    week: monday,
-                    location_id: location.id,
-                    total: totalHoras
-                  });
-                } else {
-                  console.error(`No se pudo encontrar la ubicación para el departamento con ID: ${department.id}`);
-                }
-              } else {
-                console.error(`No se pudo encontrar el departamento con ID: ${hours.shifts[0].department_id}`);
-              }
-            }
-          }
-          console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
-        } else {
-          console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
-        }
-
-
       }
-
     }
+  }
+
+  // Agregar los totales por tienda a kpisByWeek.totalPunchesLaborHours
+  Object.keys(totalHorasPorTienda).forEach(location_id => {
+    const location = ubicaciones.find(loc => loc.id === parseInt(location_id));
+    if (location) {
+      kpisByWeek.totalPunchesLaborHours.push({
+        week: monday,
+        location_id: location.id,
+        total: totalHorasPorTienda[location.id]
+      });
+    }
+  });
+
+  console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
+} else {
+  console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
+}
 
 
-
+/*
     kpisByWeek.minimumIdealCoverage.push(...Object.values(totalRecommendedHoursCoverage));
     kpisByWeek.minimumIdealNonCoverage.push(...Object.values(totalRecommendedHoursNonCoverage));
     kpisByWeek.minimumIdealTraining.push(...Object.values(totalRecommendedHoursTraning));
@@ -919,12 +892,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error('Error al guardar los JSON:', error);
     }
 
-    try {
-      await loadJsonToSql();
-      console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-    } catch (error) {
-      console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-    }
+    // try {
+    //   await loadJsonToSql();
+    //   console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+    // } catch (error) {
+    //   console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+    // }
 
     console.log('Fin del proceso para el range:', range);
 
