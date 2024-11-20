@@ -201,7 +201,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     const rutaJsonTOTALIZADO = path.join(__dirname, 'data', 'kpis_by_week.json');
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
-    /*
+    
     for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
         from_date: range.start,
@@ -558,7 +558,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       
     }
 
-*/
+
 
 const totalWeeklyWorkedHours = await getDatos(`/timesheets/on/${range.start}`, {
   show_costs: false,
@@ -610,7 +610,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     }
   }
 
-  // Agregar los totales por tienda a kpisByWeek.totalPunchesLaborHours
   Object.keys(totalHorasPorTienda).forEach(location_id => {
     const location = ubicaciones.find(loc => loc.id === parseInt(location_id));
     if (location) {
@@ -628,7 +627,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
 }
 
 
-/*
+
     kpisByWeek.minimumIdealCoverage.push(...Object.values(totalRecommendedHoursCoverage));
     kpisByWeek.minimumIdealNonCoverage.push(...Object.values(totalRecommendedHoursNonCoverage));
     kpisByWeek.minimumIdealTraining.push(...Object.values(totalRecommendedHoursTraning));
@@ -642,7 +641,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     kpisByWeek.actualTransactions = aggregateByWeekAndLocation(kpisByWeek.actualTransactions)
     
 
-    // Agrupar los datos por tienda para Coverage
     const groupedScheduledCoverage = kpisByWeek.scheduledCoverage.reduce((acc, item) => {
       if (!acc[item.location_id]) {
         acc[item.location_id] = { ...item, total: 0 };
@@ -660,7 +658,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     }, {});
 
 
-    // Calcular la variación para cada tienda en Coverage
     Object.keys(groupedScheduledCoverage).forEach(location_id => {
       const scheduled = groupedScheduledCoverage[location_id];
       const ideal = groupedMinimumIdealCoverage[location_id];
@@ -675,7 +672,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       }
     });
 
-    // Agrupar los datos por tienda para Non Coverage
     const groupedScheduledNonCoverage = kpisByWeek.scheduledNonCoverage.reduce((acc, item) => {
       if (!acc[item.location_id]) {
         acc[item.location_id] = { ...item, total: 0 };
@@ -692,7 +688,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       return acc;
     }, {});
 
-    // Calcular la variación para cada tienda en Non Coverage
     Object.keys(groupedScheduledNonCoverage).forEach(location_id => {
       const scheduled = groupedScheduledNonCoverage[location_id];
       const ideal = groupedMinimumIdealNonCoverage[location_id];
@@ -707,7 +702,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       }
     });
 
-    // Agrupar los datos por tienda para Training
+
     const groupedScheduledTraining = kpisByWeek.scheduledTraining.reduce((acc, item) => {
       if (!acc[item.location_id]) {
         acc[item.location_id] = { ...item, total: 0 };
@@ -724,7 +719,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       return acc;
     }, {});
 
-    // Calcular la variación para cada tienda en Training
     Object.keys(groupedScheduledTraining).forEach(location_id => {
       const scheduled = groupedScheduledTraining[location_id];
       const ideal = groupedMinimumIdealTraining[location_id];
@@ -743,7 +737,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     console.log(`Variance to Ideal Non Coverage %: ${JSON.stringify(kpisByWeek.varianceToIdealNonCoverage, null, 2)}`);
     console.log(`Variance to Ideal Training %: ${JSON.stringify(kpisByWeek.varianceToIdealTraining, null, 2)}`);
 
-    // Calcular Total Ideal Weekly Labor Hours y Total Scheduled Weekly Labor Hours por tienda
+
     Object.keys(groupedScheduledCoverage).forEach(location_id => {
       const scheduledCoverage = groupedScheduledCoverage[location_id] || { total: 0 };
       const scheduledNonCoverage = groupedScheduledNonCoverage[location_id] || { total: 0 };
@@ -776,7 +770,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
         total: totalVarianceToIdeal
       });
 
-      // Calcular nonCoveragePorcentage
       const nonCoveragePorcentage = (minimumIdealNonCoverage.total + minimumIdealTraining.total) / totalIdealWeeklyLaborHours;
       kpisByWeek.nonCoveragePorcentage.push({
         week: monday,
@@ -785,7 +778,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       });
     });
 
-    // Agrupar los datos por tienda para transactionForecast y actualTransactions
     const groupedTransactionForecast = kpisByWeek.transactionForecast.reduce((acc, item) => {
       if (!acc[item.location_id]) {
         acc[item.location_id] = { ...item, total: 0 };
@@ -802,7 +794,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       return acc;
     }, {});
 
-    // Calcular forecastAcuraccy para cada tienda
     Object.keys(groupedTransactionForecast).forEach(location_id => {
       const forecast = groupedTransactionForecast[location_id];
       const actual = groupedActualTransactions[location_id];
@@ -817,7 +808,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       }
     });
 
-    // Agrupar los datos por tienda para totalPunchesLaborHours
     const groupedTotalPunchesLaborHours = kpisByWeek.totalPunchesLaborHours.reduce((acc, item) => {
       if (!acc[item.location_id]) {
         acc[item.location_id] = { ...item, total: 0 };
@@ -826,7 +816,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       return acc;
     }, {});
 
-    // Calcular totalVarianceToIdealLaborHours para cada tienda
     Object.keys(groupedTotalPunchesLaborHours).forEach(location_id => {
       const punches = groupedTotalPunchesLaborHours[location_id];
       const ideal = kpisByWeek.totalIdealWeeklyLaborHours.find(item => item.location_id === location_id);
@@ -841,7 +830,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       }
     });
 
-    // Calcular TPLH y IPLH para cada tienda
     Object.keys(groupedActualTransactions).forEach(location_id => {
       const actualTransactions = groupedActualTransactions[location_id];
       const totalPunches = groupedTotalPunchesLaborHours[location_id] || { total: 0 };
@@ -878,7 +866,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     console.log(`TPLH: ${JSON.stringify(kpisByWeek.TPLH, null, 2)}`);
     console.log(`IPLH: ${JSON.stringify(kpisByWeek.IPLH, null, 2)}`);
 
-*/
+
     try {
 
       await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
@@ -892,12 +880,12 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
       console.error('Error al guardar los JSON:', error);
     }
 
-    // try {
-    //   await loadJsonToSql();
-    //   console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-    // } catch (error) {
-    //   console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-    // }
+    try {
+      await loadJsonToSql();
+      console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+    } catch (error) {
+      console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+    }
 
     console.log('Fin del proceso para el range:', range);
 
