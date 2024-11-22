@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-02';
-const datefinish = '2024-09-08';
+const datestart = '2024-09-09';
+const datefinish = '2024-10-27';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -43,14 +43,6 @@ function convertEpochToDateTime(epoch, GMT_zone = "-04:00") {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${GMT_zone}`;
 }
 
-function extractMonthInSpanish(date) {
-  const months = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-  ];
-  const monthNumber = parseInt(date.split('-')[1], 10);
-  return months[monthNumber - 1];
-}
 
 function generateWeeklyRanges(start, finish) {
   const ranges = [];
@@ -113,7 +105,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const ubicaciones = await getDatos('/locations');
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
-
+/*
   
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name }
@@ -126,7 +118,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   rawData.datastreams = datastreams.map((datastream)=> {
     return {datastream_id: datastream.id, name: datastream.name}
   })
-
+*/
 
   for (const range of WeeklyRanges) {
 
