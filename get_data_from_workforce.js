@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-02';
-const datefinish= '2024-09-08';
+const datestart = '2024-09-09';
+const datefinish= '2024-09-15';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -114,7 +114,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
 
-  
+  /*
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name }
   });
@@ -127,7 +127,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     return {datastream_id: datastream.id, name: datastream.name}
   })
 
-
+*/
   let totalRecommendedHoursCoverage = {};
   let totalRecommendedHoursNonCoverage = {};
   let totalRecommendedHoursTraning = {}
@@ -526,7 +526,7 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
 
       await writeFile(rutaJsonCOMPLETO, JSON.stringify(rawData, null, 2));
 
-      console.log(`Datos guardados para el range ${range.start} en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
+      console.log(`Datos guardados para el range ${range.start} en ${rutaJsonCOMPLETO}`);
     } catch (error) {
       console.error('Error al guardar los JSON:', error);
     }
