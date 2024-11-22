@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const { loadJsonToSql} = require('./load_json_to_sql');
+const { loadJsonToSql } = require('./load_json_to_sql');
 
 const writeFile = util.promisify(fs.writeFile);
 const mkdir = util.promisify(fs.mkdir);
@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-09';
-const datefinish= '2024-09-15';
+const datestart = '2024-09-02';
+const datefinish = '2024-09-08';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -114,7 +114,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
 
-  /*
+  
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name }
   });
@@ -127,22 +127,13 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     return {datastream_id: datastream.id, name: datastream.name}
   })
 
-*/
-  let totalRecommendedHoursCoverage = {};
-  let totalRecommendedHoursNonCoverage = {};
-  let totalRecommendedHoursTraning = {}
-
-  const locationHoursCoverage = {};
-  const locationHoursNonCoverage = {};
-  const locationHoursTraining = {};
-
 
   for (const range of WeeklyRanges) {
 
 
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
-    
+
     for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
         from_date: range.start,
@@ -164,51 +155,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
           const recommendedHoursFlattened = TransformHoursFordate(recommendedHours.recommended_hours_by_date).map((item) => ({
             ...item,
-            department_name: department.name,
             department_id: department.id,
             location_id: location.id
           }));
           rawData.minimumIdeal.push(...recommendedHoursFlattened);
 
 
-          if (department.name === 'Baristas DT' ||
-            department.name === 'Baristas' ||
-            department.name === 'Supervisores' ||
-            department.name === 'Supervisores DT') {
-
-            if (!totalRecommendedHoursCoverage[location.id]) {
-              totalRecommendedHoursCoverage[location.id] = {
-            
-                location_id: location.id,
-                total: 0
-              };
-            }
-            totalRecommendedHoursCoverage[location.id].total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-
-
-          } else if (department.name === 'Non Coverage') {
-            if (!totalRecommendedHoursNonCoverage[location.id]) {
-              totalRecommendedHoursNonCoverage[location.id] = {
-            
-                location_id: location.id,
-                total: 0
-              };
-            }
-            totalRecommendedHoursNonCoverage[location.id].total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-
-          } else if (department.name === 'Training') {
-            if (!totalRecommendedHoursTraning[location.id]) {
-              totalRecommendedHoursTraning[location.id] = {
- 
-                location_id: location.id,
-                total: 0
-              };
-            }
-            totalRecommendedHoursTraning[location.id].total += parseFloat(recommendedHours.total_recommended_hours_for_date_range);
-
-          }
 
 
           console.log(`Obtenidas las horas recomendadas para el departamento con ID: ${department.id}`)
@@ -255,6 +207,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
               delete newShift.time_zone
               delete newShift.id
               delete newShift.automatic_break_length
+              delete newShift.shift_detail_id
               delete newShift.creation_method
               delete newShift.creation_platform
               delete newShift.acceptance_status
@@ -263,84 +216,9 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
               delete newShift.utc_offset
               return newShift
             })
-          );
+          ).filter(scheduled => scheduled.last_published_at !== null);
           rawData.scheduled.push(...scheduledFlattened);
 
-          if (department.name === 'Baristas DT' ||
-            department.name === 'Baristas' ||
-            department.name === 'Supervisores' ||
-            department.name === 'Supervisores DT') {
-
-            let totalHoras = 0;
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
-            totalHoras = Math.round(totalHoras);
-
-            if (!locationHoursCoverage[location.id]) {
-              locationHoursCoverage[location.id] = {
-          
-                location_id: location.id,
-                total: 0
-              };
-            }
-            locationHoursCoverage[location.id].total += totalHoras;
-            console.log(`Total horas Coverage para ${location.name} (${department.name}): ${totalHoras}`);
-
-          } else if (department.name === 'Non Coverage') {
-            let totalHoras = 0;
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
-            totalHoras = Math.round(totalHoras);
-
-            if (!locationHoursNonCoverage[location.id]) {
-              locationHoursNonCoverage[location.id] = {
-              
-                location_id: location.id,
-                total: 0
-              };
-            }
-            locationHoursNonCoverage[location.id].total += totalHoras;
-            console.log(`Total horas Non Coverage para ${location.name} (${department.name}): ${totalHoras}`);
-
-          } else if (department.name === 'Training') {
-            let totalHoras = 0;
-            for (const schedule of scheduled.schedules) {
-              for (const shift of schedule.schedules.filter(shift => shift.department_id === department.id)) {
-                const startDate = new Date(shift.start * 1000);
-                const finishDate = new Date(shift.finish * 1000);
-                const diffMilliseconds = finishDate - startDate;
-                const breakMilliseconds = shift.breaks.reduce((total, b) => total + (b.length * 60 * 1000), 0);
-                const totalMilliseconds = diffMilliseconds - breakMilliseconds;
-                totalHoras += totalMilliseconds / (1000 * 60 * 60);
-              }
-            }
-            totalHoras = Math.round(totalHoras);
-
-            if (!locationHoursTraining[location.id]) {
-              locationHoursTraining[location.id] = {
-                location_id: location.id,
-                total: 0
-              };
-            }
-            locationHoursTraining[location.id].total += totalHoras;
-            console.log(`Total horas Training para ${location.name} (${department.name}): ${totalHoras}`);
-          }
 
 
 
@@ -358,11 +236,10 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           from: range.start,
           to: toDate.toISOString().split('T')[0]
         });
-    
+
         if (Array.isArray(predictedTransactions)) {
-          let totalStats = 0;
           const allStats = [];
-    
+
           for (const transaction of predictedTransactions) {
             if (Array.isArray(transaction.stats)) {
               const filteredStats = transaction.stats.filter(stat => {
@@ -371,24 +248,23 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 const finDate = new Date(range.finish);
                 return statDate >= startDate && statDate <= finDate;
               });
-    
-              const flattened = filteredStats.filter(storeStat => storeStat.type === 'checks').map(item => {
+
+              const flattened = filteredStats.filter(storeStat => storeStat.type === 'checks' && Number(storeStat.stat) > 0).map(item => {
                 let newItem = {
                   ...item,
                   location_id: location.id,
-                  predicted_storestats_id: item.id,
                 }
+                delete newItem.type
                 delete newItem.id;
                 return newItem;
-              });
+              })
               allStats.push(...flattened);
-    
-              totalStats += filteredStats.reduce((sum, stat) => sum + (stat.stat || 0), 0);
+
             }
           }
-    
+
           rawData.transactionForecast.push(...allStats);
-    
+
 
           console.log(`Obtenidas las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
         } else {
@@ -406,7 +282,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
       if (datastreamJoin) {
         const location = ubicaciones.find(loc => loc.id === datastreamJoin.data_streamable_id);
-        
+
         const toDate = new Date(range.finish);
         toDate.setDate(toDate.getDate() + 1);
         const storeStats = await getDatos(`/storestats/for_datastream/${datastream.id}`, {
@@ -431,9 +307,10 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 location_id: location.id,
                 storestats_id: item.id,
               }
+              delete newItem.type
               delete newItem.id
               return newItem
-            });
+            }).filter(storeStat => Number(storeStat.stat) > 0);
 
             rawData.actualTransactions.push(...actualTransactionsFlattened);
 
@@ -447,8 +324,9 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 storestats_id: item.id,
               }
               delete newItem.id
+              delete newItem.type
               return newItem
-            });
+            }).filter(storeStat => Number(storeStat.stat) > 0);
             rawData.items.push(...actualSalesFlattened);
 
           }
@@ -457,65 +335,60 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         }
         console.log(`Se obtuvieron los stats para el datastream con ID: ${datastream.id}`);
       }
-      
+
     }
 
 
 
-const totalWeeklyWorkedHours = await getDatos(`/timesheets/on/${range.start}`, {
-  show_costs: false,
-  show_award_interpretation: false
-});
+    const totalWeeklyWorkedHours = await getDatos(`/timesheets/on/${range.start}`, {
+      show_costs: false,
+      show_award_interpretation: false
+    });
 
-if (Array.isArray(totalWeeklyWorkedHours)) {
-  const totalHorasPorTienda = {};
+    if (Array.isArray(totalWeeklyWorkedHours)) {
+      const totalHorasPorTienda = {};
 
-  for (const hours of totalWeeklyWorkedHours) {
-    if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
-      const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
-      if (department) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          if (!totalHorasPorTienda[location.id]) {
-            totalHorasPorTienda[location.id] = 0;
+      for (const hours of totalWeeklyWorkedHours) {
+        if (hours.status === 'approved' && hours && hours.shifts[0] && hours.shifts[0].department_id) {
+          const department = departamentos.find(dep => dep.id === hours.shifts[0].department_id);
+          if (department) {
+            const location = ubicaciones.find(loc => loc.id === department.location_id);
+            if (location) {
+              if (!totalHorasPorTienda[location.id]) {
+                totalHorasPorTienda[location.id] = 0;
+              }
+
+              const shiftsFlattened = hours.shifts.filter(shift => {
+                const shiftDate = new Date(shift.date);
+                const start = new Date(range.start);
+                const finish = new Date(range.finish);
+
+                return shiftDate >= start && shiftDate <= finish;
+              }).map(shift => {
+                let shift_id = shift.id;
+                const { id, break_finish, timesheet_id, record_id, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
+
+                const total = ((shift.finish - shift.start) / 60 - shift.break_length) / 60;
+                totalHorasPorTienda[location.id] += total;
+
+                return {
+                  ...rest,
+                  location_id: location.id,
+                  shift_id,
+                };
+              });
+
+              rawData.totalPunchesLaborHours.push(...shiftsFlattened);
+            }
           }
-
-          const shiftsFlattened = hours.shifts.filter(shift => {
-            const shiftDate = new Date(shift.date);
-            const start = new Date(range.start);
-            const finish = new Date(range.finish);
-
-            return shiftDate >= start && shiftDate <= finish;
-          }).map(shift => {
-            let shift_id = shift.id;
-            const { id, break_finish, break_start, updated_at, breaks, tag, sub_cost_centre, tag_id, metadata, leave_request_id, allowances, approved_by, approved_at, award_interpretation, ...rest } = shift;
-
-            const total = ((shift.finish - shift.start) / 60 - shift.break_length) / 60;
-            totalHorasPorTienda[location.id] += total;
-
-            return {
-              ...rest,
-              location_id: location.id,
-              shift_id,
-              break_length: breaks.reduce((total, b) => total + b.length, 0),
-              time_start: convertEpochToDateTime(shift.start).slice(11, 16),
-              time_finish: convertEpochToDateTime(shift.finish).slice(11, 16),
-              month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
-              total
-            };
-          });
-
-          rawData.totalPunchesLaborHours.push(...shiftsFlattened);
         }
       }
+
+
+      console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
+    } else {
+      console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
     }
-  }
-
-
-  console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
-} else {
-  console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
-}
 
 
 
@@ -542,9 +415,9 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
 
   }
 
-  
 
- 
+
+
 
 }
 
@@ -556,7 +429,7 @@ async function main() {
 
 
   try {
-    
+
     await fetchMultipleWorkforceRequests(datestart, datefinish);
 
 
