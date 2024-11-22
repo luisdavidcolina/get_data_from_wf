@@ -122,6 +122,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   for (const range of WeeklyRanges) {
 
+    console.log(`Recorriendo semana ${range.start} hasta ${range.finish}...`);
 
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
