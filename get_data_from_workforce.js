@@ -79,41 +79,7 @@ function generateWeeklyRanges(start, finish) {
   return ranges;
 }
 
-function getMonday(dateStartOfRange) {
-  const date = new Date(dateStartOfRange);
 
-  date.setUTCHours(0, 0, 0, 0);
-
-  const dayOfWeek = date.getUTCDay();
-
-  const diff = dayOfWeek === 0 ? -6 : -dayOfWeek + 1;
-
-  date.setUTCDate(date.getUTCDate() + diff);
-
-  return date.toISOString().split('T')[0];
-}
-
-function aggregateByWeekAndLocation(data) {
-  const result = [];
-
-  data.forEach(item => {
-    const existingEntry = result.find(entry =>
-      entry.week === item.week && entry.location_id === item.location_id
-    );
-
-    if (existingEntry) {
-      existingEntry.total += item.total;
-    } else {
-      result.push({
-        week: item.week,
-        location_id: item.location_id,
-        total: item.total
-      });
-    }
-  });
-
-  return result;
-}
 
 async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
@@ -129,29 +95,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     totalPunchesLaborHours: []
   };
 
-  const kpisByWeek = {
-    minimumIdealCoverage: [],
-    minimumIdealNonCoverage: [],
-    minimumIdealTraining: [],
-    scheduledCoverage: [],
-    scheduledNonCoverage: [],
-    scheduledTraining: [],
-    varianceToIdealCoverage: [],
-    varianceToIdealNonCoverage : [],
-    varianceToIdealTraining: [],
-    totalIdealWeeklyLaborHours: [],
-    totalScheduledWeeklyLaborHours: [],
-    totalVariancesToIdealSummations: [],
-    nonCoveragePorcentage: [],
-    transactionForecast: [],
-    actualTransactions: [],
-    forecastAcuraccy: [],
-    items: [],
-    TPLH: [],
-    IPLH: [],
-    totalPunchesLaborHours: [],
-    totalVarianceToIdealLaborHours: []
-  };
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
 
@@ -196,9 +139,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   for (const range of WeeklyRanges) {
 
-    const monday = getMonday(range.start);
 
-    const rutaJsonTOTALIZADO = path.join(__dirname, 'data', 'kpis_by_week.json');
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
     
@@ -215,9 +156,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           total
         }));
       }
-
-
-
 
 
       if (recommendedHours) {
@@ -240,7 +178,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
             if (!totalRecommendedHoursCoverage[location.id]) {
               totalRecommendedHoursCoverage[location.id] = {
-                week: monday,
+            
                 location_id: location.id,
                 total: 0
               };
@@ -252,7 +190,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           } else if (department.name === 'Non Coverage') {
             if (!totalRecommendedHoursNonCoverage[location.id]) {
               totalRecommendedHoursNonCoverage[location.id] = {
-                week: monday,
+            
                 location_id: location.id,
                 total: 0
               };
@@ -263,7 +201,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
           } else if (department.name === 'Training') {
             if (!totalRecommendedHoursTraning[location.id]) {
               totalRecommendedHoursTraning[location.id] = {
-                week: monday,
+ 
                 location_id: location.id,
                 total: 0
               };
@@ -310,11 +248,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 location_id: location.id,
                 break_length: breakLength,
                 roster_id: shift.id,
-                date: convertEpochToDateTime(shift.start).slice(0, 10),
-                time_start: convertEpochToDateTime(shift.start).slice(11, 16),
-                time_finish: convertEpochToDateTime(shift.finish).slice(11, 16),
-                week: monday,
-                month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
                 total
               };
 
@@ -353,7 +286,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
             if (!locationHoursCoverage[location.id]) {
               locationHoursCoverage[location.id] = {
-                week: monday,
+          
                 location_id: location.id,
                 total: 0
               };
@@ -377,7 +310,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
             if (!locationHoursNonCoverage[location.id]) {
               locationHoursNonCoverage[location.id] = {
-                week: monday,
+              
                 location_id: location.id,
                 total: 0
               };
@@ -401,7 +334,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
             if (!locationHoursTraining[location.id]) {
               locationHoursTraining[location.id] = {
-                week: monday,
                 location_id: location.id,
                 total: 0
               };
@@ -445,10 +377,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                   ...item,
                   location_id: location.id,
                   predicted_storestats_id: item.id,
-                  date: convertEpochToDateTime(item.time).slice(0, 10),
-                  time: convertEpochToDateTime(item.time).slice(11, 16),
-                  week: monday,
-                  month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
                 }
                 delete newItem.id;
                 return newItem;
@@ -461,11 +389,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     
           rawData.transactionForecast.push(...allStats);
     
-          kpisByWeek.transactionForecast.push({
-            week: monday,
-            location_id: location.id,
-            total: totalStats
-          });
+
           console.log(`Obtenidas las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
         } else {
           console.error(`No se pudieron obtener las transacciones pronosticadas para la ubicación con ID: ${location.id}`);
@@ -506,10 +430,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 ...item,
                 location_id: location.id,
                 storestats_id: item.id,
-                date: convertEpochToDateTime(item.time).slice(0, 10),
-                time: convertEpochToDateTime(item.time).slice(11, 16),
-                week: monday,
-                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
               delete newItem.id
               return newItem
@@ -517,13 +437,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
             rawData.actualTransactions.push(...actualTransactionsFlattened);
 
-            const totalChecks = filteredStats.reduce((sum, transaction) => sum + transaction.stat, 0);
-
-            kpisByWeek.actualTransactions.push({
-              week: monday,
-              location_id: location.id,
-              total: totalChecks
-            });
           }
 
           else if ((filteredStats[0]) && (filteredStats[0].type) && (filteredStats[0].type === 'sales count')) {
@@ -532,23 +445,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 ...item,
                 location_id: location.id,
                 storestats_id: item.id,
-                date: convertEpochToDateTime(item.time).slice(0, 10),
-                time: convertEpochToDateTime(item.time).slice(11, 16),
-                week: monday,
-                month: extractMonthInSpanish(convertEpochToDateTime(item.time).slice(0, 10))
               }
               delete newItem.id
               return newItem
             });
             rawData.items.push(...actualSalesFlattened);
 
-
-            const totalSales = filteredStats.reduce((sum, sale) => sum + sale.stat, 0);
-            kpisByWeek.items.push({
-              week: monday,
-              location_id: location.id,
-              total: totalSales
-            });
           }
 
 
@@ -596,7 +498,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
               location_id: location.id,
               shift_id,
               break_length: breaks.reduce((total, b) => total + b.length, 0),
-              week: monday,
               time_start: convertEpochToDateTime(shift.start).slice(11, 16),
               time_finish: convertEpochToDateTime(shift.finish).slice(11, 16),
               month: extractMonthInSpanish(convertEpochToDateTime(shift.start).slice(0, 10)),
@@ -610,16 +511,6 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
     }
   }
 
-  Object.keys(totalHorasPorTienda).forEach(location_id => {
-    const location = ubicaciones.find(loc => loc.id === parseInt(location_id));
-    if (location) {
-      kpisByWeek.totalPunchesLaborHours.push({
-        week: monday,
-        location_id: location.id,
-        total: totalHorasPorTienda[location.id]
-      });
-    }
-  });
 
   console.log(`Se obtuvieron las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
 } else {
@@ -628,251 +519,11 @@ if (Array.isArray(totalWeeklyWorkedHours)) {
 
 
 
-    kpisByWeek.minimumIdealCoverage.push(...Object.values(totalRecommendedHoursCoverage));
-    kpisByWeek.minimumIdealNonCoverage.push(...Object.values(totalRecommendedHoursNonCoverage));
-    kpisByWeek.minimumIdealTraining.push(...Object.values(totalRecommendedHoursTraning));
-
-    kpisByWeek.scheduledCoverage = Object.values(locationHoursCoverage);
-    kpisByWeek.scheduledNonCoverage = Object.values(locationHoursNonCoverage);
-    kpisByWeek.scheduledTraining = Object.values(locationHoursTraining);  
-
-     
-    kpisByWeek.items = aggregateByWeekAndLocation(kpisByWeek.items)
-    kpisByWeek.actualTransactions = aggregateByWeekAndLocation(kpisByWeek.actualTransactions)
-    
-
-    const groupedScheduledCoverage = kpisByWeek.scheduledCoverage.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    const groupedMinimumIdealCoverage = kpisByWeek.minimumIdealCoverage.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-
-    Object.keys(groupedScheduledCoverage).forEach(location_id => {
-      const scheduled = groupedScheduledCoverage[location_id];
-      const ideal = groupedMinimumIdealCoverage[location_id];
-
-      if (ideal) {
-        const variance = (scheduled.total / ideal.total) - 1;
-        kpisByWeek.varianceToIdealCoverage.push({
-          week: monday,
-          location_id: scheduled.location_id,
-          total: variance ?? 0
-        });
-      }
-    });
-
-    const groupedScheduledNonCoverage = kpisByWeek.scheduledNonCoverage.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    const groupedMinimumIdealNonCoverage = kpisByWeek.minimumIdealNonCoverage.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    Object.keys(groupedScheduledNonCoverage).forEach(location_id => {
-      const scheduled = groupedScheduledNonCoverage[location_id];
-      const ideal = groupedMinimumIdealNonCoverage[location_id];
-
-      if (ideal) {
-        const variance = (scheduled.total / ideal.total) - 1;
-        kpisByWeek.varianceToIdealNonCoverage.push({
-          week: monday,
-          location_id: scheduled.location_id,
-          total: variance ?? 0
-        });
-      }
-    });
-
-
-    const groupedScheduledTraining = kpisByWeek.scheduledTraining.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    const groupedMinimumIdealTraining = kpisByWeek.minimumIdealTraining.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    Object.keys(groupedScheduledTraining).forEach(location_id => {
-      const scheduled = groupedScheduledTraining[location_id];
-      const ideal = groupedMinimumIdealTraining[location_id];
-
-      if (ideal) {
-        const variance = (scheduled.total / ideal.total) - 1;
-        kpisByWeek.varianceToIdealTraining.push({
-          week: monday,
-          location_id: scheduled.location_id,
-          total: variance   ?? 0
-        });
-      }
-    });
-
-    console.log(`Variance to Ideal Coverage %: ${JSON.stringify(kpisByWeek.varianceToIdealCoverage, null, 2)}`);
-    console.log(`Variance to Ideal Non Coverage %: ${JSON.stringify(kpisByWeek.varianceToIdealNonCoverage, null, 2)}`);
-    console.log(`Variance to Ideal Training %: ${JSON.stringify(kpisByWeek.varianceToIdealTraining, null, 2)}`);
-
-
-    Object.keys(groupedScheduledCoverage).forEach(location_id => {
-      const scheduledCoverage = groupedScheduledCoverage[location_id] || { total: 0 };
-      const scheduledNonCoverage = groupedScheduledNonCoverage[location_id] || { total: 0 };
-      const scheduledTraining = groupedScheduledTraining[location_id] || { total: 0 };
-
-      const minimumIdealCoverage = groupedMinimumIdealCoverage[location_id] || { total: 0 };
-      const minimumIdealNonCoverage = groupedMinimumIdealNonCoverage[location_id] || { total: 0 };
-      const minimumIdealTraining = groupedMinimumIdealTraining[location_id] || { total: 0 };
-
-      const totalIdealWeeklyLaborHours = minimumIdealCoverage.total + minimumIdealNonCoverage.total + minimumIdealTraining.total;
-      const totalScheduledWeeklyLaborHours = scheduledCoverage.total + scheduledNonCoverage.total + scheduledTraining.total;
-
-      const totalVarianceToIdeal = (totalScheduledWeeklyLaborHours / totalIdealWeeklyLaborHours) - 1;
-
-      kpisByWeek.totalIdealWeeklyLaborHours.push({
-        week: monday,
-        location_id: location_id,
-        total: totalIdealWeeklyLaborHours
-      });
-
-      kpisByWeek.totalScheduledWeeklyLaborHours.push({
-        week: monday,
-        location_id: location_id,
-        total: totalScheduledWeeklyLaborHours
-      });
-
-      kpisByWeek.totalVariancesToIdealSummations.push({
-        week: monday,
-        location_id: location_id,
-        total: totalVarianceToIdeal
-      });
-
-      const nonCoveragePorcentage = (minimumIdealNonCoverage.total + minimumIdealTraining.total) / totalIdealWeeklyLaborHours;
-      kpisByWeek.nonCoveragePorcentage.push({
-        week: monday,
-        location_id: location_id,
-        total: nonCoveragePorcentage ?? 0
-      });
-    });
-
-    const groupedTransactionForecast = kpisByWeek.transactionForecast.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    const groupedActualTransactions = kpisByWeek.actualTransactions.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    Object.keys(groupedTransactionForecast).forEach(location_id => {
-      const forecast = groupedTransactionForecast[location_id];
-      const actual = groupedActualTransactions[location_id];
-
-      if (actual) {
-        const accuracy = forecast.total / actual.total;
-        kpisByWeek.forecastAcuraccy.push({
-          week: monday,
-          location_id: forecast.location_id,
-          total: accuracy ?? 0
-        });
-      }
-    });
-
-    const groupedTotalPunchesLaborHours = kpisByWeek.totalPunchesLaborHours.reduce((acc, item) => {
-      if (!acc[item.location_id]) {
-        acc[item.location_id] = { ...item, total: 0 };
-      }
-      acc[item.location_id].total += item.total;
-      return acc;
-    }, {});
-
-    Object.keys(groupedTotalPunchesLaborHours).forEach(location_id => {
-      const punches = groupedTotalPunchesLaborHours[location_id];
-      const ideal = kpisByWeek.totalIdealWeeklyLaborHours.find(item => item.location_id === location_id);
-
-      if (ideal) {
-        const variance = (punches.total / ideal.total) - 1;
-        kpisByWeek.totalVarianceToIdealLaborHours.push({
-          week: monday,
-          location_id: punches.location_id,
-          total: variance ?? 0
-        });
-      }
-    });
-
-    Object.keys(groupedActualTransactions).forEach(location_id => {
-      const actualTransactions = groupedActualTransactions[location_id];
-      const totalPunches = groupedTotalPunchesLaborHours[location_id] || { total: 0 };
-      const scheduledTraining = groupedScheduledTraining[location_id] || { total: 0 };
-      const scheduledNonCoverage = groupedScheduledNonCoverage[location_id] || { total: 0 };
-      const items = kpisByWeek.items.find(item => item.location_id === location_id) || { total: 0 };
-
-      const denominator = totalPunches.total - scheduledTraining.total - scheduledNonCoverage.total;
-
-      if (denominator > 0) {
-        const tplh = actualTransactions.total / denominator;
-        const iplh = (items.total * actualTransactions.total) / denominator;
-
-        kpisByWeek.TPLH.push({
-          week: monday,
-          location_id: location_id,
-          total: tplh ?? 0
-        });
-
-        kpisByWeek.IPLH.push({
-          week: monday,
-          location_id: location_id,
-          total: iplh  ?? 0
-        });
-      }
-    });
-
-    console.log(`Total Ideal Weekly Labor Hours: ${JSON.stringify(kpisByWeek.totalIdealWeeklyLaborHours, null, 2)}`);
-    console.log(`Total Scheduled Weekly Labor Hours: ${JSON.stringify(kpisByWeek.totalScheduledWeeklyLaborHours, null, 2)}`);
-    console.log(`Total Variance to Ideal: ${JSON.stringify(kpisByWeek.totalVarianceToIdeal, null, 2)}`);
-    console.log(`Non Coverage Percentage: ${JSON.stringify(kpisByWeek.nonCoveragePorcentage, null, 2)}`);
-    console.log(`Forecast Accuracy: ${JSON.stringify(kpisByWeek.forecastAcuraccy, null, 2)}`);
-    console.log(`Total Variance to Ideal Labor Hours: ${JSON.stringify(kpisByWeek.totalVarianceToIdealLaborHours, null, 2)}`);
-    console.log(`TPLH: ${JSON.stringify(kpisByWeek.TPLH, null, 2)}`);
-    console.log(`IPLH: ${JSON.stringify(kpisByWeek.IPLH, null, 2)}`);
-
 
     try {
 
-      await mkdir(path.dirname(rutaJsonTOTALIZADO), { recursive: true });
       await mkdir(path.dirname(rutaJsonCOMPLETO), { recursive: true });
 
-      await writeFile(rutaJsonTOTALIZADO, JSON.stringify(kpisByWeek, null, 2));
       await writeFile(rutaJsonCOMPLETO, JSON.stringify(rawData, null, 2));
 
       console.log(`Datos guardados para el range ${range.start} en ${rutaJsonTOTALIZADO} y ${rutaJsonCOMPLETO}`);
