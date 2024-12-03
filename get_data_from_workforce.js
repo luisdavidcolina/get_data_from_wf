@@ -216,7 +216,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
       rawData.scheduled.push(...scheduledFlattened);
 
-      console.log(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
+      console.log(`Se obtuvieron las coberturas programadas`);
     
     }
 
