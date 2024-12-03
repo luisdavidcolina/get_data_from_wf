@@ -108,7 +108,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
   
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
-    return { department_id: department.id, name: department.name }
+    return { department_id: department.id, name: department.name, location_id: department.location_id }
   });
 
   rawData.locations= ubicaciones.map((location)=> {
@@ -172,59 +172,53 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     });
 
 
-    for (const department of departamentosRelevantesCompletosUnicos) {
-      if (scheduled) {
-        const location = ubicaciones.find(loc => loc.id === department.location_id);
-        if (location) {
-          const uniqueShifts = new Set();
-    
-          const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
-            schedule.schedules.map(shift => {
-              const breakLength = shift.breaks.reduce((total, b) => {
-                const breakStart = new Date(b.start * 1000);
-                const breakFinish = new Date(b.finish * 1000);
-                return total + (breakFinish - breakStart) / (1000 * 60);
-              }, 0);
-    
-              const total = ((shift.finish - shift.start) / 60 - breakLength) / 60;
-    
-              const shiftKey = `${shift.user_id}-${shift.start}`;
-              if (uniqueShifts.has(shiftKey)) {
-                return null; 
-              }
-              uniqueShifts.add(shiftKey);
-    
-              const newShift = {
-                ...shift,
-                department_id: department.id,
-                location_id: location.id,
-                break_length: breakLength,
-                roster_id: shift.id,
-                total
-              };
-    
-              delete newShift.breaks;
-              delete newShift.time_zone;
-              delete newShift.id;
-              delete newShift.automatic_break_length;
-              delete newShift.shift_detail_id;
-              delete newShift.creation_method;
-              delete newShift.creation_platform;
-              delete newShift.acceptance_status;
-              delete newShift.last_acknowledged_at;
-              delete newShift.needs_acceptance;
-              delete newShift.utc_offset;
-              return newShift;
-            })
-          ).filter(scheduled => scheduled && scheduled.last_published_at !== null);
-    
-          rawData.scheduled.push(...scheduledFlattened);
-    
-          console.log(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
-        }
-      }
-    }
+    if (scheduled) {
+      
+      const uniqueShifts = new Set();
+  
+      const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
+        schedule.schedules.map(shift => {
+          const breakLength = shift.breaks.reduce((total, b) => {
+            const breakStart = new Date(b.start * 1000);
+            const breakFinish = new Date(b.finish * 1000);
+            return total + (breakFinish - breakStart) / (1000 * 60);
+          }, 0);
 
+
+          const shiftKey = `${shift.user_id}-${shift.start}`;
+          if (uniqueShifts.has(shiftKey)) {
+            return null; 
+          }
+          uniqueShifts.add(shiftKey);
+
+          const newShift = {
+            ...shift,
+            department_id: shift.department_id,
+            break_length: breakLength,
+            schedule_id: shift.id,
+            roster_id: shift.roster_id
+          };
+
+          delete newShift.breaks;
+          delete newShift.time_zone;
+          delete newShift.id;
+          delete newShift.automatic_break_length;
+          delete newShift.shift_detail_id;
+          delete newShift.creation_method;
+          delete newShift.creation_platform;
+          delete newShift.acceptance_status;
+          delete newShift.last_acknowledged_at;
+          delete newShift.needs_acceptance;
+          delete newShift.utc_offset;
+          return newShift;
+        })
+      ).filter(scheduled => scheduled && scheduled.last_published_at !== null);
+
+      rawData.scheduled.push(...scheduledFlattened);
+
+      console.log(`Se obtuvieron las coberturas programadas para el departamento con ID: ${department.id}`);
+    
+    }
 
     for (const location of ubicaciones) {
       try {
