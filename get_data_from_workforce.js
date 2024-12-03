@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-09';
-const datefinish = '2024-09-29';
+const datestart = '2024-09-30';
+const datefinish = '2024-12-01';
 
 async function getDatos(endpoint, params = {}) {
   try {
