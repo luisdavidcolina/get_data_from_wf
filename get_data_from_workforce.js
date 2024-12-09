@@ -15,7 +15,7 @@ const headers = {
 };
 
 const datestart = '2024-09-30';
-const datefinish = '2024-12-01';
+const datefinish = '2024-10-06';
 
 async function getDatos(endpoint, params = {}) {
   try {
