@@ -105,15 +105,18 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const ubicaciones = await getDatos('/locations');
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
+
+  rawData.locations= ubicaciones.map((location)=> {
+    return { location_id: location.id, name: location.name, short_name: location.short_name}
+  })
+
 /*
   
   rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
     return { department_id: department.id, name: department.name, location_id: department.location_id }
   });
 
-  rawData.locations= ubicaciones.map((location)=> {
-    return { location_id: location.id, name: location.name}
-  })
+ 
 
   rawData.datastreams = datastreams.map((datastream)=> {
     return {datastream_id: datastream.id, name: datastream.name}
@@ -126,6 +129,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
+
+    /*
 
     for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
@@ -382,7 +387,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
     }
 
-
+*/
 
 
     try {
