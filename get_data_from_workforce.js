@@ -15,7 +15,7 @@ const headers = {
 };
 
 const datestart = '2024-09-30';
-const datefinish = '2024-10-06';
+const datefinish = '2024-10-02';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -84,8 +84,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     transactionForecast: [],
     actualTransactions: [],
     items: [],
-    totalPunchesLaborHours: []
+    totalPunchesLaborHours: [],
+    updateDates: []
   };
+
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().split('T')[0];
+
+  rawData.updateDates.push(formattedDate);
 
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
@@ -130,7 +136,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
 
 
-    /*
 
     for (const department of departamentosRelevantesCompletosUnicos) {
       const recommendedHours = await getDatos('/recommended_hours', {
@@ -387,8 +392,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
     }
 
-*/
-
 
     try {
 
@@ -401,18 +404,17 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error('Error al guardar los JSON:', error);
     }
 
-    try {
-      await loadJsonToSql();
-      console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-    } catch (error) {
-      console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-    }
-
     console.log('Fin del proceso para el range:', range);
 
   }
 
 
+  // try {
+    //   await loadJsonToSql();
+    //   console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+    // } catch (error) {
+    //   console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+    // }
 
 
 
