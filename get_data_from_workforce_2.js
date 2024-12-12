@@ -87,6 +87,17 @@ function generateWeeklyRanges(start, finish) {
     dateActual.setDate(dateActual.getDate() + 1);
   }
 
+  
+  const lastRange = ranges[ranges.length - 1];
+  const lastRangeFinish = new Date(lastRange.finish);
+  const additionalStart = new Date(lastRangeFinish.setDate(lastRangeFinish.getDate() + 1));
+  const additionalFinish = new Date(additionalStart.setDate(additionalStart.getDate() + 6));
+
+  ranges.push({
+    start: additionalStart.toISOString().split('T')[0],
+    finish: additionalFinish.toISOString().split('T')[0]
+  });
+
   return ranges;
 }
 
@@ -110,7 +121,11 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const currentDate = new Date();
   const formattedDate = currentDate.toISOString().split('T')[0];
 
-  rawData.updateDates.push(formattedDate);
+  rawData.updateDates.push({
+    date: formattedDate,
+    startRange: datestart,
+    finishRange: dateFinish
+  });
 
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
@@ -180,7 +195,18 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             department_id: department.id,
             location_id: location.id
           }));
-          rawData.minimumIdeal.push(...recommendedHoursFlattened);
+
+
+          
+
+          const filteredRecommendedHours = recommendedHoursFlattened.filter(item => {
+            const itemDate = new Date(item.date);
+            const startDate = new Date(datestart);
+            const endDate = new Date(dateFinish);
+            return itemDate >= startDate && itemDate <= endDate;
+          });
+
+          rawData.minimumIdeal.push(...filteredRecommendedHours);
 
 
 
@@ -243,7 +269,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
         })
       ).filter(scheduled => scheduled && scheduled.last_published_at !== null);
 
-      rawData.scheduled.push(...scheduledFlattened);
+      const filteredScheduled = scheduledFlattened.filter(shift => {
+        const shiftStartDate = new Date(shift.start * 1000);
+        const startDate = new Date(datestart);
+        const endDate = new Date(dateFinish);
+        return shiftStartDate >= startDate && shiftStartDate <= endDate;
+      });
+    
+      rawData.scheduled.push(...filteredScheduled);
 
       console.log(`Se obtuvieron las coberturas programadas`);
     
@@ -265,8 +298,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
             if (Array.isArray(transaction.stats)) {
               const filteredStats = transaction.stats.filter(stat => {
                 const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
-                const startDate = new Date(range.start);
-                const finDate = new Date(range.finish);
+                const startDate = new Date(datestart);
+                const finDate = new Date(dateFinish);
                 return statDate >= startDate && statDate <= finDate;
               });
 
@@ -315,8 +348,8 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
           const filteredStats = storeStats.filter(stat => {
             const statDate = new Date(convertEpochToDateTime(stat.time).slice(0, 10));
-            const startDate = new Date(range.start);
-            const finDate = new Date(range.finish);
+            const startDate = new Date(datestart);
+            const finDate = new Date(dateFinish);
             return statDate >= startDate && statDate <= finDate;
           });
 
@@ -399,7 +432,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
                 };
               });
 
-              rawData.totalPunchesLaborHours.push(...shiftsFlattened);
+              const filteredShifts = shiftsFlattened.filter(shift => {
+                const shiftDate = new Date(shift.date);
+                const startDate = new Date(datestart);
+                const endDate = new Date(dateFinish);
+                return shiftDate >= startDate && shiftDate <= endDate;
+              });
+
+              rawData.totalPunchesLaborHours.push(...filteredShifts);
             }
           }
         }
