@@ -91,7 +91,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const currentDate = new Date();
   const formattedDate = currentDate.toISOString().split('T')[0];
 
-  rawData.updateDates.push(formattedDate);
+
+  rawData.updateDates.push({
+    date: formattedDate,
+    startRange: datestart,
+    finishRange: dateFinish
+  });
 
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
