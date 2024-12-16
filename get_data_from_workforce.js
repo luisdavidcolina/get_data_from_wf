@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-12-09';
-const datefinish = '2024-12-15';
+const datestart = '2024-12-02';
+const datefinish = '2024-12-08';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -98,7 +98,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     finishRange: dateFinish
   });
 
-  console.log(rawData)
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
 
@@ -118,22 +117,23 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const datastreams = await getDatos('/datastreams');
   const datastreamsJoins = await getDatos('/datastreamjoins');
 
-  rawData.locations= ubicaciones.map((location)=> {
-    return { location_id: location.id, name: location.name, short_name: location.short_name}
+
+
+  /*
+      rawData.locations = ubicaciones.map((location) => {
+    return { location_id: location.id, name: location.name, short_name: location.short_name }
   })
 
-/*
+    rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
+      return { department_id: department.id, name: department.name, location_id: department.location_id }
+    });
   
-  rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
-    return { department_id: department.id, name: department.name, location_id: department.location_id }
-  });
-
- 
-
-  rawData.datastreams = datastreams.map((datastream)=> {
-    return {datastream_id: datastream.id, name: datastream.name}
-  })
-*/
+   
+  
+    rawData.datastreams = datastreams.map((datastream)=> {
+      return {datastream_id: datastream.id, name: datastream.name}
+    })
+  */
 
   for (const range of WeeklyRanges) {
 
@@ -189,9 +189,9 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
 
     if (scheduled) {
-      
+
       const uniqueShifts = new Set();
-  
+
       const scheduledFlattened = scheduled.schedules.flatMap(schedule =>
         schedule.schedules.map(shift => {
           const breakLength = shift.breaks.reduce((total, b) => {
@@ -203,7 +203,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
           const shiftKey = `${shift.user_id}-${shift.start}`;
           if (uniqueShifts.has(shiftKey)) {
-            return null; 
+            return null;
           }
           uniqueShifts.add(shiftKey);
 
@@ -233,7 +233,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       rawData.scheduled.push(...scheduledFlattened);
 
       console.log(`Se obtuvieron las coberturas programadas`);
-    
+
     }
 
     for (const location of ubicaciones) {
@@ -415,12 +415,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   }
 
 
-  // try {
-    //   await loadJsonToSql();
-    //   console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-    // } catch (error) {
-    //   console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-    // }
+  try {
+    await loadJsonToSql();
+    console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+  } catch (error) {
+    console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+  }
 
 
 
