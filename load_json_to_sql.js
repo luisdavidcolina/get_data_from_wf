@@ -114,7 +114,6 @@ async function loadJsonToSql() {
 if (require.loadJsonToSql === module) {
   loadJsonToSql();
 }
-loadJsonToSql();
 
 module.exports = { loadJsonToSql };
 
