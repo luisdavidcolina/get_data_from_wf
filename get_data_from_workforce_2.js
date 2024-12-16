@@ -473,12 +473,12 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
 
 
-//   try {
-//     await loadJsonToSql2(datestart, datefinish);
-//     console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-//   } catch (error) {
-//     console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-//   }
+   try {
+     await loadJsonToSql2(datestart, datefinish);
+     console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+   } catch (error) {
+     console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+   }
 
 }
 

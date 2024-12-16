@@ -98,6 +98,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     finishRange: dateFinish
   });
 
+  console.log(rawData)
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
 
