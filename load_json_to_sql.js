@@ -14,7 +14,6 @@ const sqlConfig = {
 };
 
 const rutaActual = path.dirname(__filename);
-const rutaJsonTOTALIZADO = path.join(rutaActual, 'data', 'kpis_by_week.json');
 const rutaJsonCOMPLETO = path.join(rutaActual, 'data', 'raw_data.json');
 
 function toSnakeCase(str) {
@@ -78,18 +77,10 @@ function cargarDatosDesdeJSON(ruta) {
 }
 
 async function createTablesAndInsertData(pool) {
-  const datosTotalizado = cargarDatosDesdeJSON(rutaJsonTOTALIZADO) || {};
 
-  const transformedData = {
-    kpisByWeek: Object.entries(datosTotalizado).flatMap(([key, values]) =>
-      Array.isArray(values) 
-        ? values.map(item => ({ ...item, kpi: key })) 
-        : []
-    )
-  };
+
 
   const rawData = {
-    ...transformedData,
     ...cargarDatosDesdeJSON(rutaJsonCOMPLETO)
   };
 
