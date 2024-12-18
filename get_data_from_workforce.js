@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-12-02';
-const datefinish = '2024-12-08';
+const datestart = '2024-09-30';
+const datefinish = '2024-10-06';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -118,9 +118,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
   const datastreamsJoins = await getDatos('/datastreamjoins');
 
 
-
-  /*
-      rawData.locations = ubicaciones.map((location) => {
+  rawData.locations = ubicaciones.map((location) => {
     return { location_id: location.id, name: location.name, short_name: location.short_name }
   })
 
@@ -133,6 +131,9 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     rawData.datastreams = datastreams.map((datastream)=> {
       return {datastream_id: datastream.id, name: datastream.name}
     })
+
+  /*
+  
   */
 
   for (const range of WeeklyRanges) {
@@ -284,8 +285,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       }
     }
 
-
-
     for (const datastream of datastreams) {
       const datastreamJoin = datastreamsJoins.find(join => join.data_stream_id === datastream.id && join.data_streamable_type === 'Location');
       if (datastreamJoin) {
@@ -398,6 +397,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
     }
 
+    
 
     try {
 
@@ -406,6 +406,14 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       await writeFile(rutaJsonCOMPLETO, JSON.stringify(rawData, null, 2));
 
       console.log(`Datos guardados para el range ${range.start} en ${rutaJsonCOMPLETO}`);
+
+      try {
+        await loadJsonToSql();
+        console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
+      } catch (error) {
+        console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
+      }
+
     } catch (error) {
       console.error('Error al guardar los JSON:', error);
     }
@@ -413,15 +421,6 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
     console.log('Fin del proceso para el range:', range);
 
   }
-
-
-  try {
-    await loadJsonToSql();
-    console.log(`Datos cargados a SQL exitosamente para el range ${range.start}`);
-  } catch (error) {
-    console.error(`Error en la carga de datos a SQL para el range ${range.start}:`, error);
-  }
-
 
 
 }
