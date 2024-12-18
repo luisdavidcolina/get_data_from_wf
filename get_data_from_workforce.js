@@ -14,8 +14,8 @@ const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
 
-const datestart = '2024-09-30';
-const datefinish = '2024-10-06';
+const datestart = '2024-10-07';
+const datefinish = '2024-12-15';
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -75,72 +75,74 @@ function generateWeeklyRanges(start, finish) {
 
 async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
-  const rawData = {
-    locations: [],
-    departments: [],
-    datastreams: [],
-    minimumIdeal: [],
-    scheduled: [],
-    transactionForecast: [],
-    actualTransactions: [],
-    items: [],
-    totalPunchesLaborHours: [],
-    updateDates: []
-  };
-
-  const currentDate = new Date();
-  const formattedDate = currentDate.toISOString().split('T')[0];
-
-
-  rawData.updateDates.push({
-    date: formattedDate,
-    startRange: datestart,
-    finishRange: dateFinish
-  });
 
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
 
-  let departamentos = await getDatos('/departments');
+  console.log('Rangos semanales:', WeeklyRanges);
 
-
-  const departamentosRelevantesCompletosUnicos = departamentos.filter(departamento =>
-    departamento.name === 'Baristas DT' ||
-    departamento.name === 'Baristas' ||
-    departamento.name === 'Supervisores' ||
-    departamento.name === 'Supervisores DT' ||
-    departamento.name === 'Non Coverage' ||
-    departamento.name === 'Training'
-  );
-
-  const ubicaciones = await getDatos('/locations');
-  const datastreams = await getDatos('/datastreams');
-  const datastreamsJoins = await getDatos('/datastreamjoins');
-
-
-  rawData.locations = ubicaciones.map((location) => {
-    return { location_id: location.id, name: location.name, short_name: location.short_name }
-  })
-
-    rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
-      return { department_id: department.id, name: department.name, location_id: department.location_id }
-    });
-  
-   
-  
-    rawData.datastreams = datastreams.map((datastream)=> {
-      return {datastream_id: datastream.id, name: datastream.name}
-    })
-
-  /*
-  
-  */
 
   for (const range of WeeklyRanges) {
 
     console.log(`Recorriendo semana ${range.start} hasta ${range.finish}...`);
 
     const rutaJsonCOMPLETO = path.join(__dirname, 'data', 'raw_data.json');
+
+    const rawData = {
+      locations: [],
+      departments: [],
+      datastreams: [],
+      minimumIdeal: [],
+      scheduled: [],
+      transactionForecast: [],
+      actualTransactions: [],
+      items: [],
+      totalPunchesLaborHours: [],
+      updateDates: []
+    };
+
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split('T')[0];
+
+
+    rawData.updateDates.push({
+      date: formattedDate,
+      startRange: range.start,
+      finishRange: range.finish
+    });
+
+    let departamentos = await getDatos('/departments');
+
+
+    const departamentosRelevantesCompletosUnicos = departamentos.filter(departamento =>
+      departamento.name === 'Baristas DT' ||
+      departamento.name === 'Baristas' ||
+      departamento.name === 'Supervisores' ||
+      departamento.name === 'Supervisores DT' ||
+      departamento.name === 'Non Coverage' ||
+      departamento.name === 'Training'
+    );
+
+    const ubicaciones = await getDatos('/locations');
+    const datastreams = await getDatos('/datastreams');
+    const datastreamsJoins = await getDatos('/datastreamjoins');
+
+    /*
+      rawData.locations = ubicaciones.map((location) => {
+      return { location_id: location.id, name: location.name, short_name: location.short_name }
+    })
+  
+      rawData.departments = departamentosRelevantesCompletosUnicos.map((department) => {
+        return { department_id: department.id, name: department.name, location_id: department.location_id }
+      });
+    
+     
+    
+      rawData.datastreams = datastreams.map((datastream)=> {
+        return {datastream_id: datastream.id, name: datastream.name}
+      })
+  
+    */
 
 
 
@@ -397,7 +399,7 @@ async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
       console.error(`No se pudieron obtener las horas laborales semanales registradas para el range: ${range.start} - ${range.finish}`);
     }
 
-    
+
 
     try {
 
