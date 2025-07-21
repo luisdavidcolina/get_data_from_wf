@@ -13,9 +13,13 @@ const BASE_URL = 'https://my.tanda.co/api/v2';
 const headers = {
   Authorization: `Bearer ${API_TOKEN}`
 };
+const getPastDate = (days = 1, from = new Date()) =>
+  new Date(new Date(from).setDate(new Date(from).getDate() - days))
+    .toISOString()
+    .split('T')[0];
 
-const datestart = '2025-07-14';
-const datefinish = '2025-07-20';
+const datestart = getPastDate(7);
+const datefinish = getPastDate();
 
 async function getDatos(endpoint, params = {}) {
   try {
