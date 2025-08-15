@@ -18,8 +18,8 @@ const getPastDate = (days = 1, from = new Date()) =>
     .toISOString()
     .split('T')[0];
 
-const datestart = getPastDate(25);//21 jul al 10 de agosto
-const datefinish = getPastDate(5);
+const datestart = getPastDate(7);
+const datefinish = getPastDate();
 
 async function getDatos(endpoint, params = {}) {
   try {
@@ -49,6 +49,9 @@ function convertEpochToDateTime(epoch, GMT_zone = "-04:00") {
 
 
 function generateWeeklyRanges(start, finish) {
+
+
+
   const ranges = [];
   let dateActual = new Date(start);
   const dateFinal = new Date(finish);
@@ -79,7 +82,20 @@ function generateWeeklyRanges(start, finish) {
 
 async function fetchMultipleWorkforceRequests(datestart, dateFinish) {
 
+  const dayOfWeek = new Date(datestart).getDay()+1;
+  const nameOfDay = dayOfWeek === 1 ? 'Lunes' :
+    dayOfWeek === 2 ? 'Martes' :
+      dayOfWeek === 3 ? 'Miércoles' :
+        dayOfWeek === 4 ? 'Jueves' :
+          dayOfWeek === 5 ? 'Viernes' :
+            dayOfWeek === 6 ? 'Sábado' :
+              'Domingo';
 
+  console.log(datestart, dayOfWeek, nameOfDay)
+
+  if (dayOfWeek !== 1) {
+    return;
+  }
 
   const WeeklyRanges = generateWeeklyRanges(datestart, dateFinish);
 
