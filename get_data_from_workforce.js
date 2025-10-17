@@ -18,8 +18,8 @@ const getPastDate = (days = 1, from = new Date()) =>
     .toISOString()
     .split('T')[0];
 
-const datestart = getPastDate(7);
-const datefinish = getPastDate();
+const datestart = '2025-09-22'//getPastDate(7);
+const datefinish = '2025-10-12'//getPastDate();
 
 async function getDatos(endpoint, params = {}) {
   try {
